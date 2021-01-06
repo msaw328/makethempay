@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+CAUTION: Do not modify this file unless you know what you are doing.
+         Unexpected results may occur if the code is changed deliberately.
+-->
+<dbmodel pgmodeler-ver="0.9.3-beta1" use-changelog="false" last-position="65,0" last-zoom="1" max-obj-count="6"
+	 default-schema="public" default-owner="postgres">
+<database name="makethempay" is-template="false" allow-conns="true">
+</database>
+
+<schema name="public" layer="0" fill-color="#e1e1e1" sql-disabled="true">
+</schema>
+
+<table name="users" layer="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="140" y="80"/>
+	<column name="id" not-null="true">
+		<type name="serial" length="0"/>
+	</column>
+	<column name="email_addr" not-null="true">
+		<type name="varchar" length="300"/>
+		<comment><![CDATA[used as login]]></comment>
+	</column>
+	<column name="password_hash" not-null="true">
+		<type name="varchar" length="80"/>
+		<comment><![CDATA[probably argon2]]></comment>
+	</column>
+	<constraint name="user_id" type="pk-constr" table="public.users">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="email_unique" type="uq-constr" table="public.users">
+		<columns names="email_addr" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="password_hash_unique" type="uq-constr" table="public.users">
+		<columns names="password_hash" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="groups" layer="0" collapse-mode="2" max-obj-count="4" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1240" y="120"/>
+	<column name="id" not-null="true">
+		<type name="serial" length="0"/>
+	</column>
+	<column name="display_name" not-null="true">
+		<type name="varchar" length="63"/>
+	</column>
+	<column name="access_token" not-null="true">
+		<type name="varchar" length="31"/>
+		<comment><![CDATA[random token used to join a group]]></comment>
+	</column>
+	<column name="description">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="group_id" type="pk-constr" table="public.groups">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="access_token_unique" type="uq-constr" table="public.groups">
+		<columns names="access_token" ref-type="src-columns"/>
+		<comment><![CDATA[access token has to identify the group]]></comment>
+	</constraint>
+</table>
+
+<table name="memberships" layer="0" collapse-mode="2" max-obj-count="6" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<comment><![CDATA[describes membership of a user in a group]]></comment>
+	<position x="620" y="60"/>
+	<column name="id" not-null="true">
+		<type name="serial" length="0"/>
+	</column>
+	<column name="user_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="group_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="user_display_name" not-null="true">
+		<type name="varchar" length="63"/>
+	</column>
+	<column name="status">
+		<type name="varchar" length="127"/>
+	</column>
+	<constraint name="users_in_groups_id" type="pk-constr" table="public.memberships">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="user_unique_in_group" type="uq-constr" table="public.memberships">
+		<columns names="user_id,group_id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="user_display_name_unique_in_group" type="uq-constr" table="public.memberships">
+		<columns names="group_id,user_display_name" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="expenses" layer="0" collapse-mode="2" max-obj-count="4" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<comment><![CDATA[a row in this table describes an expense made as a group]]></comment>
+	<position x="340" y="420"/>
+	<column name="id" not-null="true">
+		<type name="serial" length="0"/>
+	</column>
+	<column name="creditor_id" not-null="true">
+		<type name="integer" length="0"/>
+		<comment><![CDATA[the person who PAID and others owe THEM money]]></comment>
+	</column>
+	<column name="name" not-null="true">
+		<type name="varchar" length="63"/>
+	</column>
+	<column name="description">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="expense_id" type="pk-constr" table="public.expenses">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="debts" layer="0" collapse-mode="2" max-obj-count="6" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="940" y="380"/>
+	<column name="id" not-null="true">
+		<type name="serial" length="0"/>
+	</column>
+	<column name="expense_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="debtor_id" not-null="true">
+		<type name="integer" length="0"/>
+		<comment><![CDATA[who owes the money]]></comment>
+	</column>
+	<column name="amount_paid" not-null="true">
+		<type name="money" length="0"/>
+	</column>
+	<column name="amount_owed" not-null="true">
+		<type name="money" length="0"/>
+	</column>
+	<constraint name="debtor_id" type="pk-constr" table="public.debts">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="debtor_only_once_in_expense" type="uq-constr" table="public.debts">
+		<columns names="debtor_id,expense_id" ref-type="src-columns"/>
+		<comment><![CDATA[check if debtor is present only once in any expense]]></comment>
+	</constraint>
+	<constraint name="paid_not_greater_than_owed" type="ck-constr" table="public.debts">
+			<expression><![CDATA[amount_paid <= amount_owed]]></expression>
+	</constraint>
+</table>
+
+<function name="tf_debtor_id_check"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		execution-cost="1"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<comment><![CDATA[checks if debtor is in the same group as creditor of the expense, or if the debtor and creditor is the same person]]></comment>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition><![CDATA[declare
+	debtor_group_id integer := (select memberships.group_id from memberships where memberships.id = NEW.debtor_id);
+	creditor_id integer := (select expenses.creditor_id from expenses where expenses.id = NEW.expense_id);
+	creditor_group_id integer := (select memberships.group_id from memberships where memberships.id = creditor_id);
+
+begin
+	if debtor_group_id <> creditor_group_id then
+		raise notice 'Debtor (id %/grp id %) must be in the same group as creditor (id %/grp id %)!', NEW.debtor_id, debtor_group_id, creditor_id, creditor_group_id;
+		return null;
+	end if;
+
+	if creditor_id = NEW.debtor_id then
+		raise notice 'Debtor (id %) must be a different person than the creditor (id %)!', NEW.debtor_id, creditor_id;
+		return null;
+	end if;
+
+	return NEW;
+end;
+]]></definition>
+</function>
+
+<trigger name="t_debtor_id_checks" firing-type="BEFORE" per-line="true" constraint="false"
+	 ins-event="true" del-event="false" upd-event="true" trunc-event="false"
+	 table="public.debts">
+		<function signature="public.tf_debtor_id_check()"/>
+</trigger>
+
+<constraint name="user_id_in_users" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="CASCADE" del-action="CASCADE" ref-table="public.users" table="public.memberships">
+	<columns names="user_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="group_id_in_groups" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="CASCADE" del-action="CASCADE" ref-table="public.groups" table="public.memberships">
+	<columns names="group_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="creditor_in_memberships_id" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="CASCADE" del-action="CASCADE" ref-table="public.memberships" table="public.expenses">
+	<columns names="creditor_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="expense_id_in_expenses" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="CASCADE" del-action="CASCADE" ref-table="public.expenses" table="public.debts">
+	<columns names="expense_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="debtor_id_in_memberships" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.memberships" table="public.debts">
+	<columns names="debtor_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<relationship name="rel_users_in_groups_users" type="relfk" layer="0"
+	 src-table="public.memberships"
+	 dst-table="public.users" reference-fk="user_id_in_users"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="rel_users_in_groups_groups" type="relfk" layer="0"
+	 src-table="public.memberships"
+	 dst-table="public.groups" reference-fk="group_id_in_groups"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="rel_expenses_memberships" type="relfk" layer="0"
+	 src-table="public.expenses"
+	 dst-table="public.memberships" reference-fk="creditor_in_memberships_id"
+	 src-required="false" dst-required="true">
+	<label ref-type="name-label">
+		<position x="5.84036" y="7.86774"/>
+	</label>
+</relationship>
+
+<relationship name="rel_debtors_expenses" type="relfk" layer="0"
+	 src-table="public.debts"
+	 dst-table="public.expenses" reference-fk="expense_id_in_expenses"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="rel_debtors_memberships" type="relfk" layer="0"
+	 src-table="public.debts"
+	 dst-table="public.memberships" reference-fk="debtor_id_in_memberships"
+	 src-required="false" dst-required="true"/>
+
+</dbmodel>
