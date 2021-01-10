@@ -9,21 +9,21 @@ from ..utils import login
 from . import is_json_request_valid
 
 # basic Blueprint router to which routes will be attached
-router = Blueprint('auth', __name__, template_folder='../views/auth')
+router = Blueprint('auth', __name__, template_folder='../views')
 
 # UI routes, view-based
 @router.route('/register', methods=['GET'])
 def ui_register():
-    return render_template('register.jinja2')
+    return render_template('/auth/register.jinja2')
 
 @router.route('/login', methods=['GET'])
 def ui_login():
-    return render_template('login.jinja2')
+    return render_template('/auth/login.jinja2')
 
 @router.route('/secret', methods=['GET'])
 @login.required(goto='auth.ui_login')
 def ui_secret():
-    return render_template('secret.jinja2')
+    return render_template('/auth/secret.jinja2')
 
 # API routes, accept and return JSON
 @router.route('/api/register', methods=['POST'])
