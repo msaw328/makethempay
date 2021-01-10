@@ -2,9 +2,11 @@
 
 import os
 from flask import Flask
+from flask_jsglue import JSGlue
 
 def create_app():
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, instance_relative_config=True, static_folder=None)
+    jsglue = JSGlue(app)
 
     # ensure the instance folder exists
     try:
@@ -17,8 +19,6 @@ def create_app():
         from .dev import config as dev_config
 
         app.config.from_mapping(dev_config)
-        app.static_folder = '../public_html'
-        app.static_url_path = '/static'
     else:
         app.config.from_pyfile('prod.cfg')
 

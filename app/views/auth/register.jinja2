@@ -5,8 +5,10 @@
         <title>
             Register
         </title>
-        <script type="text/javascript" src="/static/js/form_utils.js"></script>
-        <script>
+        {{ JSGlue.include() }}
+        <script type="module">
+            import { form_to_obj, async_json_request } from "/static/js/form_utils.js"
+
             window.onload = () => {
                 var registerForm = document.getElementById('register_form')
 
@@ -14,13 +16,13 @@
                     e.preventDefault()
 
                     var requestData = form_to_obj(registerForm)
-                    var url = "{{ url_for('auth.api_register') }}"
+                    var url = Flask.url_for('auth.api_register')
                     
                     async_json_request(url, 'POST', JSON.stringify(requestData), (data) => {
                         console.log(data)
 
                         if(data.success)
-                            window.location = "{{ url_for('auth.ui_login') }}"
+                            window.location = Flask.url_for('auth.ui_login')
                         else
                             alert(data.error)
                     })

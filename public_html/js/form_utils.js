@@ -1,5 +1,5 @@
 // converts HTML form into a JS object with values from inputs
-function form_to_obj(form) {
+export function form_to_obj(form) {
     var formData = new FormData(form)
     var requestData = Object.fromEntries(formData.entries())
     return requestData
@@ -10,7 +10,7 @@ function form_to_obj(form) {
 // method - POST/GET probably
 // body - JSON to be sent in POST, ignored if GET
 // callback - function, takes response object, executed after fetch is done
-function async_json_request(url, method, body, callback) {
+export function async_json_request(url, method, body, callback) {
     fetch(url, {
         headers: {
             'Content-Type': 'application/json'
