@@ -7,6 +7,7 @@ from flask import g, current_app
 def _open_db():
     if 'dbconn' not in g:
         g.dbconn = psycopg2.connect(current_app.config['DB_CONN_STR'], cursor_factory=DictCursor)
+        g.dbconn.autocommit = False
 
 def _close_db(e):
     dbconn = g.pop('dbconn', None)

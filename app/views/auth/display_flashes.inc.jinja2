@@ -1,0 +1,10 @@
+<div style="border-bottom: black 1px solid; width = 100%;">
+    Status:
+    <ul>
+        {% for message in get_flashed_messages() %}
+        <li>
+            {{ message }}
+        </li>
+        {% endfor %}
+    </ul>
+</div>

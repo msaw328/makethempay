@@ -3,37 +3,34 @@
     <head>
         <meta charset="utf-8" />
         <title>
-            Login
+            Register
         </title>
+        <script type="text/javascript" src="/static/js/form_utils.js"></script>
         <script>
             window.onload = () => {
-                var loginForm = document.getElementById('register_form')
+                var registerForm = document.getElementById('register_form')
 
-                loginForm.onsubmit = (e) => {
+                registerForm.onsubmit = (e) => {
                     e.preventDefault()
-                    var formData = new FormData(loginForm)
-                    var requestData = Object.fromEntries(formData.entries())
+
+                    var requestData = form_to_obj(registerForm)
+                    var url = "{{ url_for('auth.api_register') }}"
                     
-                    var response = fetch('/auth/api/register', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(requestData)
-                    })
-                    .then(response => response.json())
-                    .then((data) => {
+                    async_json_request(url, 'POST', JSON.stringify(requestData), (data) => {
+                        console.log(data)
+
                         if(data.success)
-                            window.location = '/auth/login'
+                            window.location = "{{ url_for('auth.ui_login') }}"
                         else
                             alert(data.error)
                     })
-
                 }
             }
         </script>
     </head>
     <body>
+        {% include "navbar.inc.jinja2" %}
+        {% include "display_flashes.inc.jinja2" %}
         <h1>Register</h1>
         <form id="register_form" name="register_form" action="">
             <label for="email_input">E-Mail</label>

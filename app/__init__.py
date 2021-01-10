@@ -15,13 +15,20 @@ def create_app():
     # if running development load dev config, else load from instance file
     if 'ENV' in app.config and app.config['ENV'] == 'development':
         from .dev import config as dev_config
+
         app.config.from_mapping(dev_config)
+        app.static_folder = '../public_html'
+        app.static_url_path = '/static'
     else:
         app.config.from_pyfile('prod.cfg')
 
     # open db and stuff
     from . import db
     db.init_app(app)
+
+    # expand context
+    from .utils.login import context_processor as login_context_processor
+    app.context_processor(login_context_processor)
 
     # routes
     from .controllers import auth

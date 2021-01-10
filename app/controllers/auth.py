@@ -1,10 +1,12 @@
-from flask import Blueprint, render_template, jsonify, session, request, redirect
+from flask import Blueprint, render_template, jsonify, session, request, redirect, url_for, flash
 from passlib.hash import argon2
 import re
 
 # internals
 from ..models import user as usermodel
-from ..utils import is_json_request_valid
+from ..utils import login
+
+from . import is_json_request_valid
 
 # basic Blueprint router to which routes will be attached
 router = Blueprint('auth', __name__, template_folder='../views/auth')
@@ -19,10 +21,8 @@ def ui_login():
     return render_template('login.jinja2')
 
 @router.route('/secret', methods=['GET'])
+@login.required(goto='auth.ui_login')
 def ui_secret():
-    if 'logged_in' not in session or not session['logged_in']:
-        return redirect('/auth/login', code=302)
-
     return render_template('secret.jinja2')
 
 # API routes, accept and return JSON
@@ -53,7 +53,13 @@ def api_register():
         })
 
     # check if user already exists with this email, should return None
-    db_result = usermodel.find_by_email(email)
+    db_err, db_result = usermodel.get_by_email(email)
+
+    if db_err is not None:
+        return jsonify({
+            'success': False,
+            'error': 'Database error'
+        })
 
     if db_result is not None:
         return jsonify({
@@ -65,6 +71,8 @@ def api_register():
     pw_hash = argon2.hash(password)
 
     usermodel.create(email, pw_hash)
+
+    flash('Succesfully registered. Use your credentials to log in.')
 
     return jsonify({
         'success': True
@@ -87,7 +95,13 @@ def api_login():
     password = request.json['password']
 
     # unlike in api_register, this time we do want to actually find a user
-    db_result = usermodel.find_by_email(email)
+    db_err, db_result = usermodel.get_by_email(email)
+
+    if db_err is not None:
+        return jsonify({
+            'success': False,
+            'error': 'Database error'
+        })
 
     if db_result is None:
         return jsonify({
@@ -103,14 +117,12 @@ def api_login():
             'error': 'Wrong email or password'
         })
 
-    # at this point we have authorized the user, log him in
-    session['logged_in'] = True
-
-    # cache some not-secret data in the session cookie
-    session['user'] = {
+    # at this point we have authorized the user, log him in and cache his data
+    login.do_login({
         'id': db_result['id'],
         'email': email
-    }
+    })
+    flash('Succesfully logged in')
 
     return jsonify({
         'success': True
@@ -118,8 +130,8 @@ def api_login():
 
 @router.route('/api/logout', methods=['POST'])
 def api_logout():
-    session['logged_in'] = False
-    session.pop('user', None)
+    login.do_logout()
+    flash('Succesfully logged out')
 
     return jsonify({
         'success': True

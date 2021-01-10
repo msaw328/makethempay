@@ -5,35 +5,32 @@
         <title>
             Login
         </title>
+        <script type="text/javascript" src="/static/js/form_utils.js"></script>
         <script>
             window.onload = () => {
                 var loginForm = document.getElementById('login_form')
 
                 loginForm.onsubmit = (e) => {
                     e.preventDefault()
-                    var formData = new FormData(loginForm)
-                    var requestData = Object.fromEntries(formData.entries())
-                    
-                    var response = fetch('/auth/api/login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(requestData)
-                    })
-                    .then(response => response.json())
-                    .then((data) => {
+
+                    var requestData = form_to_obj(loginForm)
+                    var url = "{{ url_for('auth.api_login') }}"
+
+                    async_json_request(url, 'POST', JSON.stringify(requestData), (data) => {
+                        console.log(data)
+
                         if(data.success)
-                            window.location = '/auth/secret'
+                            window.location = "{{ url_for('auth.ui_secret') }}"
                         else
                             alert(data.error)
                     })
-
                 }
             }
         </script>
     </head>
     <body>
+        {% include "navbar.inc.jinja2" %}
+        {% include "display_flashes.inc.jinja2" %}
         <h1>Login</h1>
         <form id="login_form" name="login_form">
             <label for="email_input">E-Mail</label>
