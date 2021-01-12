@@ -15,7 +15,7 @@ export function async_json_request(url, method, body, callback) {
         headers: {
             'Content-Type': 'application/json'
         },
-        method: 'POST',
+        method: method,
         body: (method == 'POST') ? body : null
     }).then(resp => resp.json()).then(callback)
 }
