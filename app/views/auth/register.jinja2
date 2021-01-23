@@ -15,6 +15,8 @@
                 var password = document.getElementById("pass_input")
                 var confirm_password = document.getElementById("pass_input_conf")
 
+
+                //Password validation based on https://codepen.io/diegoleme/pen/surIK
                 function validatePassword(){
                     if(password.value != confirm_password.value) {
                         confirm_password.setCustomValidity("Passwords Don't Match");
@@ -62,11 +64,8 @@
                     <label for="pass_input" class="visually-hidden">Password</label>
                     <input id="pass_input" name="password" type="password" class="form-control password" placeholder="Password" required>
                     <label for="pass_input_conf" class="visually-hidden">Confirm password</label>
-                    <input id="pass_input_conf" type="password" class="form-control password-confirm" placeholder="Confirm password" required>
-
-                    {# TODO: dodać kolejne pole na hasło i sprawdzić czy hasła w obu polach się zgadzają jakąś walidacją #}
-                    
-                    <button class="w-100 btn btn-lg btn-warning" type="submit">Sign up</button>
+                    <input id="pass_input_conf" type="password" class="form-control password-confirm" placeholder="Confirm password" required>                    
+                    <button class="w-100 btn btn-lg btn-danger" type="submit">Sign up</button>
                 </form>
             </div>
         </main>
