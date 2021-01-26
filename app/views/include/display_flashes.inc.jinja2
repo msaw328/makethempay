@@ -1,10 +1,15 @@
-<div style="border-bottom: black 1px solid; width = 100%;">
-    Status:
-    <ul>
-        {% for message in get_flashed_messages() %}
-        <li>
+<div class="toast-container position-absolute top-5 end-0 p-3">
+
+    {% for message in get_flashed_messages() %}
+    <div class="toast">
+        <div class="toast-header">
+            <strong class="me-auto">Here is a note for you:</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
             {{ message }}
-        </li>
-        {% endfor %}
-    </ul>
+        </div>
+    </div>
+    {% endfor %}
+
 </div>

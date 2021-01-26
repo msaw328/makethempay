@@ -1,51 +1,42 @@
 <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0057ad;">
     <div class="container-xl">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarBurger" aria-controls="navbarBurger" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".dual-collapse" aria-controls="navbarBurger" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarBurger">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            {% if not is_logged_in() %}
-            <li class="nav-item">
-                <a class="nav-link" aria-current="page" href="{{ url_for('auth.ui_register') }}"><b>Register</b></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('auth.ui_login') }}"><b>Login</b></a>
-            </li>
-            {% endif %}
-            {% if is_logged_in() %}
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('auth.ui_secret') }}"><b>Secret</b></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">My groups</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">My account</a>
-            </li>
-            {% endif %}
+        <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse">
+            <ul class="navbar-nav me-auto">
+                {% if not is_logged_in() %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.ui_register') }}">Register</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.ui_login') }}">Login</a>
+                </li>
+                {% endif %}
+                {% if is_logged_in() %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.ui_secret') }}">Secret</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">My groups</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">My account</a>
+                </li>
+                {% endif %}
             </ul>
         </div>
-        <div class="mx-auto">
-            <a class="navbar-brand" href="#">MAKE THEM PAY</a>
+        <div class="mx-auto order-0">
+            <a class="navbar-brand mx-auto" href="#">MAKE THEM PAY</a>
         </div>
-        <!-- EMPTY SPACE TO CENTER THE LOGO: -->
-        <span class="w-100"></span>
+        <div class="navbar-collapse collapse w-100 order-3 dual-collapse">
+            <ul class="navbar-nav ms-auto">
+                {% if is_logged_in() %}
+                <div class="nav navbar-nav navbar-right">
+                    <button class="btn btn-danger" id="logout_button"><b>Logout</b></button>
+                </div>
+                {% endif %}
+            </ul>
+        </div>
     </div>
 </nav>
-
-<style>
-    .nav-link {
-        font-weight: 500;
-        font-size: 17px;
-        color: white !important;
-    }
-
-    .navbar-brand {
-        letter-spacing: 5px;
-        font-size: 35px;
-        font-weight: 900;
-        text-transform: uppercase;
-        text-shadow: 3px -3px 0px black;
-    }
-</style>
