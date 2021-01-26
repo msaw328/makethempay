@@ -19,7 +19,7 @@ def get_by_email(email):
 
     cursor = g.dbconn.cursor()
     cursor.execute(query, params)
-    errreturned_rows = cursor.fetchall()
+    returned_rows = cursor.fetchone()
 
     return returned_rows
 
@@ -37,6 +37,6 @@ def create(email, pw_hash):
 
     cursor = g.dbconn.cursor()
     cursor.execute(query, params)
-    errreturned_rows = cursor.fetchall()
+    returned_rows = cursor.fetchone()
 
     return returned_rows

@@ -45,3 +45,7 @@ def join(user_id, group_id, user_display_name, status):
     returned_rows = cursor.fetchall()
 
     return returned_rows
+
+#if user in group
+def if_user_in_group(user_id, group_id):
+    pass

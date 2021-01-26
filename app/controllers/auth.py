@@ -109,7 +109,7 @@ def api_login():
             'error': 'Database error'
         })
     else:
-        commit_transaction
+        commit_transaction()
         
     if db_result is None:
         return jsonify({

@@ -18,3 +18,6 @@ def create(user_display_name, access_token, description):
     returned_rows = cursor.fetchone()
 
     return returned_rows
+
+def get_by_access_token(access_token):
+    pass
