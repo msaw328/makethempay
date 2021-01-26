@@ -1,41 +1,7 @@
-import psycopg2
+from flask import g
 
-# runs a single query and automatically handles rollbacks on error and commit
-# returns error, None or None, returned rows (if any) depending on whether there was an error or not
-# helpful for running a single query, but transactions must be handled manually
-# The same theory under transaction query 
+def commit_transaction():
+    g.dbconn.commit()
 
-def run_single_query(conn, query, params):
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute(query, params)
-    except psycopg2.Error as e:
-        conn.rollback()
-        return e, None
-
-    returned_rows = cursor.fetchall()
-
-    conn.commit()
-
-    return None, returned_rows
-
-
-def run_transaction_query(conn, queries, params):
-    cursor = conn.cursor()
-
-    try:
-        with conn:
-            with conn.cursor() as cur:
-                i = 0
-                for query in queries:
-                    cur.execute(query, params[i])
-                    i += 1
-    except psycopg2.Error as e:
-        conn.rollback()
-        return e, None
-
-    returned_rows = cursor.fetchall()
-    conn.commit()
-
-    return None, returned_rows
+def rollback_transaction():
+    g.dbconn.rollback()

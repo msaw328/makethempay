@@ -32,7 +32,9 @@ def create_app():
 
     # routes
     from .controllers import auth
+    from .controllers import membership
     app.register_blueprint(auth.router, url_prefix='/auth')
+    app.register_blueprint(membership.router, url_prefix='/member')
 
     if 'ENV' in app.config and app.config['ENV'] == 'development':
         print('ENDPOINTS:')

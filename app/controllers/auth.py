@@ -1,21 +1,17 @@
 from flask import Blueprint, render_template, jsonify, session, request, redirect, url_for, flash
 from passlib.hash import argon2
 import re
+import psycopg2
 
 # internals
 from ..models import user as usermodel
 from ..models import membership as member
 from ..utils import login
-
+from ..models import commit_transaction, rollback_transaction
 from . import is_json_request_valid
 
 # basic Blueprint router to which routes will be attached
 router = Blueprint('auth', __name__, template_folder='../views')
-
-# UI routes, view-based
-@router.route('/member', methods=['GET'])
-def ui_member():
-    return render_template('/auth/member.jinja2')
 
 # UI routes, view-based
 @router.route('/register', methods=['GET'])
@@ -59,13 +55,16 @@ def api_register():
         })
 
     # check if user already exists with this email, should return None
-    db_err, db_result = usermodel.get_by_email(email)
-
-    if db_err is not None:
+    try:
+        db_result = usermodel.get_by_email(email)
+    except psycopg2.Error as e:
+        rollback_transaction()
         return jsonify({
             'success': False,
             'error': 'Database error'
         })
+    else:
+        commit_transaction()
 
     if db_result is not None:
         return jsonify({
@@ -101,14 +100,17 @@ def api_login():
     password = request.json['password']
 
     # unlike in api_register, this time we do want to actually find a user
-    db_err, db_result = usermodel.get_by_email(email)
-
-    if db_err is not None:
+    try:
+        db_result = usermodel.get_by_email(email)
+    except psycopg2.Error as e:
+        rollback_transaction()
         return jsonify({
             'success': False,
             'error': 'Database error'
         })
-
+    else:
+        commit_transaction
+        
     if db_result is None:
         return jsonify({
             'success': False,
@@ -141,38 +143,4 @@ def api_logout():
 
     return jsonify({
         'success': True
-    })
-
-@router.route('/api/member', methods=['POST'])
-def api_member():
-    req_check = is_json_request_valid(request, {
-        'user_id': str,
-    })
-
-    if not req_check:
-        return jsonify({
-            'success': False,
-            'error': 'Missing parameters or wrong type of parameters'
-        })
-
-    user_id = request.json['user_id']
-
-    # unlike in api_register, this time we do want to actually find a user
-    db_err, db_result = member.get_by_user_id(int(user_id))
-
-    if db_err is not None:
-        return jsonify({
-            'success': False,
-            'error': 'Database error'
-        })
-
-    if db_result is None:
-        return jsonify({
-            'success': False,
-            'error': 'Wrong email or password'
-        })
-
-    flash("Show me what you got")
-    return jsonify({
-        'success': db_result
     })
