@@ -9,6 +9,7 @@
         {{ JSGlue.include() }}
         <script type="module">
             import { form_to_obj, async_json_request } from "/static/js/form_utils.js"
+            import { add_toast, show_toasts, remove_toasts } from "/static/js/toasts.js"
 
             window.onload = () => {
                 let registerForm = document.getElementById('register_form')
@@ -16,7 +17,7 @@
                 let confirm_password = document.getElementById("pass_input_conf")
 
 
-                //Password validation based on https://codepen.io/diegoleme/pen/surIK
+                // Password validation based on https://codepen.io/diegoleme/pen/surIK
                 function validatePassword(){
                     if(password.value != confirm_password.value) {
                         confirm_password.setCustomValidity("Passwords Don't Match");
@@ -40,14 +41,13 @@
                         if(data.success)
                             window.location = Flask.url_for('auth.ui_login')
                         else
-                            alert(data.error)
+                            remove_toasts()
+                            add_toast(data.error)
+                            show_toasts()
                     })
                 }
 
-                // Needed to show toasts
-                let toastElList = [].slice.call(document.querySelectorAll('.toast'))
-                let toastList = toastElList.map(function(toastEl) {return new bootstrap.Toast(toastEl)});
-                toastList.forEach(toast => toast.show());
+                show_toasts()
             }
         </script>
 
@@ -59,7 +59,7 @@
 
     <body class=".bg-light">
         {% include "include/navbar.inc.jinja2" %}
-        {# {% include "include/display_flashes.inc.jinja2" %} #}
+        {% include "include/display_toasts.inc.jinja2" %}
         <main class="container">
             <div class="form-signin text-center">
                 <form id="register_form" name="register_form" action="">

@@ -9,6 +9,7 @@
         {{ JSGlue.include() }}
         <script type="module">
             import { form_to_obj, async_json_request } from "/static/js/form_utils.js"
+            import { add_toast, show_toasts, remove_toasts } from "/static/js/toasts.js"
 
             window.onload = () => {
                 let loginForm = document.getElementById('login_form')
@@ -25,14 +26,13 @@
                         if(data.success)
                             window.location = Flask.url_for('auth.ui_secret')
                         else
-                            alert(data.error)
+                            remove_toasts()
+                            add_toast(data.error)
+                            show_toasts()
                     })
                 }
 
-                // Needed to show toasts
-                let toastElList = [].slice.call(document.querySelectorAll('.toast'))
-                let toastList = toastElList.map(function(toastEl) {return new bootstrap.Toast(toastEl)});
-                toastList.forEach(toast => toast.show());
+                show_toasts()
             }
         </script>
 
@@ -44,7 +44,7 @@
 
     <body>
         {% include "include/navbar.inc.jinja2" %}
-        {% include "include/display_flashes.inc.jinja2" %}
+        {% include "include/display_toasts.inc.jinja2" %}
 
         <main class="container">
             <div class="form-signin text-center">
