@@ -1,14 +1,42 @@
-<div style="border-bottom: black 1px solid; width = 100%;">
-    Navbar:
-    <a href="{{ url_for('auth.ui_register') }}">
-        Register
-    </a>
-    <a href="{{ url_for('auth.ui_login') }}">
-        Login
-    </a>
-    {% if is_logged_in() %}
-    <a href="{{ url_for('auth.ui_secret') }}">
-        Secret
-    </a>
-    {% endif %}
-</div>
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0057ad;">
+    <div class="container-xl">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".dual-collapse" aria-controls="navbarBurger" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse">
+            <ul class="navbar-nav me-auto">
+                {% if not is_logged_in() %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.ui_register') }}">Register</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.ui_login') }}">Login</a>
+                </li>
+                {% endif %}
+                {% if is_logged_in() %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.ui_secret') }}">Secret</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">My groups</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">My account</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+        <div class="mx-auto order-0">
+            <a class="navbar-brand mx-auto" href="#">MAKE THEM PAY</a>
+        </div>
+        <div class="navbar-collapse collapse w-100 order-3 dual-collapse">
+            <ul class="navbar-nav ms-auto">
+                {% if is_logged_in() %}
+                <div class="nav navbar-nav navbar-right">
+                    <button class="btn btn-danger" id="logout_button"><b>Logout</b></button>
+                </div>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,10 @@
+<div id='alerts-container'>
+
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-secondary alert-dismissible fade show sticky-top" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    
+</div>

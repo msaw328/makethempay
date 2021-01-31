@@ -2,44 +2,79 @@
 <html>
     <head>
         <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>
             Register
         </title>
         {{ JSGlue.include() }}
         <script type="module">
             import { form_to_obj, async_json_request } from "/static/js/form_utils.js"
+            import { add_alert } from "/static/js/alerts.js"
 
             window.onload = () => {
-                var registerForm = document.getElementById('register_form')
+                let registerForm = document.getElementById('register_form')
+                let password = document.getElementById("pass_input")
+                let confirm_password = document.getElementById("pass_input_conf")
+
+
+                // Password validation based on https://codepen.io/diegoleme/pen/surIK
+                function validatePassword(){
+                    if(password.value != confirm_password.value) {
+                        confirm_password.setCustomValidity("Passwords Don't Match");
+                    } else {
+                        confirm_password.setCustomValidity("");
+                    }
+                }
+
+                password.onchange = validatePassword;
+                confirm_password.onkeyup = validatePassword;
 
                 registerForm.onsubmit = (e) => {
                     e.preventDefault()
+                    e.stopPropagation()
 
-                    var requestData = form_to_obj(registerForm)
-                    var url = Flask.url_for('auth.api_register')
+                    let requestData = form_to_obj(registerForm)
+                    let url = Flask.url_for('auth.api_register')
                     
                     async_json_request(url, 'POST', JSON.stringify(requestData), (data) => {
                         console.log(data)
 
-                        if(data.success)
+                        if(data.success) {
                             window.location = Flask.url_for('auth.ui_login')
-                        else
-                            alert(data.error)
+                        } else {
+                            add_alert(data.error)
+                        }
                     })
                 }
             }
         </script>
+
+        <!-- Import bootstrap -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+        <link rel="stylesheet" href="/static/css/navbar.css" type="text/css">
+        <link rel="stylesheet" href="/static/css/register.css" type="text/css">
     </head>
-    <body>
+
+    <body class=".bg-light">
         {% include "include/navbar.inc.jinja2" %}
-        {% include "include/display_flashes.inc.jinja2" %}
-        <h1>Register</h1>
-        <form id="register_form" name="register_form" action="">
-            <label for="email_input">E-Mail</label>
-            <input id="email_input" name="email" type="text">
-            <label for="pass_input">Password</label>
-            <input id="pass_input" name="password" type="password">
-            <input value="Register" type="submit">
-        </form>
-    </body>
+        {% include "include/display_alerts.inc.jinja2" %}
+        <main class="container">
+            <div class="form-signin text-center">
+                <form id="register_form" name="register_form" action="">
+                    <img class="mb-4" src="/static/img/logo.png" alt="logo">
+                    <h1 class="h2 mb-3 fw-normal">You can register here:</h1>
+                    <label for="email_input" class="visually-hidden">E-Mail</label>
+                    <input id="email_input" name="email" type="email" class="form-control" placeholder="Email address" reguired>
+                    <label for="pass_input" class="visually-hidden">Password</label>
+                    <input id="pass_input" name="password" type="password" class="form-control password" placeholder="Password" required>
+                    <label for="pass_input_conf" class="visually-hidden">Confirm password</label>
+                    <input id="pass_input_conf" type="password" class="form-control password-confirm" placeholder="Confirm password" required>                    
+                    <button class="w-100 btn btn-lg btn-danger" type="submit">Sign up</button>
+                </form>
+            </div>
+        </main>
+
+        <!-- Bootstrap stuff -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+        </body>
 </html>

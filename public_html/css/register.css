@@ -1,0 +1,57 @@
+html,
+body {
+    height: 100%;
+    padding-bottom: 40px;
+    background-color: #f7f7f7;
+    text-align: center;
+}
+
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 160px; /* Needs to be centered in some better way */
+}
+
+.form-signin {
+    width: 100%;
+    max-width: 330px;
+    padding: 15px;
+    margin: auto;
+}
+
+.form-signin .form-control {
+    position: relative;
+    box-sizing: border-box;
+    height: auto;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.form-signin .form-control:focus {
+    z-index: 2;
+}
+
+.form-signin input[type="email"] {
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.password {
+    margin-bottom: -1px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.password-confirm {
+    margin-bottom: 15px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.alert{
+    margin-bottom: 0rem;
+}
