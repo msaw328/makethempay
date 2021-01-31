@@ -9,7 +9,7 @@
         {{ JSGlue.include() }}
         <script type="module">
             import { form_to_obj, async_json_request } from "/static/js/form_utils.js"
-            import { add_toast, show_toasts, remove_toasts } from "/static/js/toasts.js"
+            import { add_alert } from "/static/js/alerts.js"
 
             window.onload = () => {
                 let registerForm = document.getElementById('register_form')
@@ -31,6 +31,7 @@
 
                 registerForm.onsubmit = (e) => {
                     e.preventDefault()
+                    e.stopPropagation()
 
                     let requestData = form_to_obj(registerForm)
                     let url = Flask.url_for('auth.api_register')
@@ -38,16 +39,13 @@
                     async_json_request(url, 'POST', JSON.stringify(requestData), (data) => {
                         console.log(data)
 
-                        if(data.success)
+                        if(data.success) {
                             window.location = Flask.url_for('auth.ui_login')
-                        else
-                            remove_toasts()
-                            add_toast(data.error)
-                            show_toasts()
+                        } else {
+                            add_alert(data.error)
+                        }
                     })
                 }
-
-                show_toasts()
             }
         </script>
 
@@ -59,7 +57,7 @@
 
     <body class=".bg-light">
         {% include "include/navbar.inc.jinja2" %}
-        {% include "include/display_toasts.inc.jinja2" %}
+        {% include "include/display_alerts.inc.jinja2" %}
         <main class="container">
             <div class="form-signin text-center">
                 <form id="register_form" name="register_form" action="">

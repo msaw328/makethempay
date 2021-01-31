@@ -27,14 +27,17 @@ main {
     padding: 10px;
     font-size: 16px;
 }
+
 .form-signin .form-control:focus {
     z-index: 2;
 }
+
 .form-signin input[type="email"] {
     margin-bottom: -1px;
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
 }
+
 .password {
     margin-bottom: -1px;
     border-top-left-radius: 0;
@@ -47,4 +50,8 @@ main {
     margin-bottom: 15px;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+}
+
+.alert{
+    margin-bottom: 0rem;
 }
