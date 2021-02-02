@@ -33,6 +33,8 @@ def join(user_id, group_id, user_display_name, status):
                 RETURNING *;
               """
 
+    # INSERT INTO memberships (user_id, group_id, user_display_name, status) VALUES (4, 1, 'Maćko', 'aaaktywny') RETURNING *;
+
     params = {
         'user_id': user_id,
         'group_id': group_id,
