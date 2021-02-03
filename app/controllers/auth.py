@@ -25,7 +25,7 @@ def ui_login():
 @router.route('/secret', methods=['GET'])
 @login.required(goto='auth.ui_login')
 def ui_secret():
-    return render_template('/auth/secret.jinja2')
+    return render_template('/dashboard/dashboard.jinja2')
 
 # API routes, accept and return JSON
 @router.route('/api/register', methods=['POST'])
@@ -74,8 +74,17 @@ def api_register():
 
     # at this point all checks have been performed, we can create a new user
     pw_hash = argon2.hash(password)
-
-    usermodel.create(email, pw_hash)
+    
+    try:
+        usermodel.create(email, pw_hash)
+    except psycopg2.Error as e:
+        rollback_transaction()
+        return jsonify({
+            'success': False,
+            'error': 'Database error'
+        })
+    else:
+        commit_transaction()
 
     flash('Succesfully registered. Use your credentials to log in.')
 

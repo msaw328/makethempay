@@ -10,7 +10,7 @@ import psycopg2
 
 # Gets user's group info
 def get_by_user_id(user_id):
-    query = """SELECT (m.id, m.user_id, m.group_id, m.user_display_name, m.status, g.display_name, g.access_token, g.description)
+    query = """SELECT m.id, m.user_id, m.group_id, m.user_display_name, m.status, g.display_name, g.access_token, g.description
                FROM memberships m 
                JOIN groups g ON m.group_id = g.id 
                WHERE user_id=%(user_id)s;
