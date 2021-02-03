@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>
+            Dashboard
+        </title>
+        {{ JSGlue.include() }}
+        <script type="module">
+            import { form_to_obj, async_json_request } from "/static/js/form_utils.js"
+            import { add_alert } from "/static/js/alerts.js"
+
+            window.onload = () => {
+                let join_group_form = document.getElementById('join_group_form')
+
+                join_group_form.onsubmit = (e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+
+                    let requestData = form_to_obj(join_group_form)
+                    let url = Flask.url_for('membership.api_add_member')
+
+                    async_json_request(url, 'POST', JSON.stringify(requestData), (data) => {
+                        console.log(data)
+
+                        if(data.success) {
+                            add_alert("Poszło")
+                        } else {
+                            add_alert("nie poszło")
+                        }
+                    })
+                }
+            }
+        </script>
+
+        <!-- Import bootstrap -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+        <link rel="stylesheet" href="/static/css/navbar.css" type="text/css">
+        <link rel="stylesheet" href="/static/css/dashboard.css" type="text/css">
+    </head>
+
+    <body>
+        {% include "include/navbar.inc.jinja2" %}
+        {% include "include/display_alerts.inc.jinja2" %}
+
+        <main class="container col-10">
+        <ul class="list-group col-10">
+        <li class="list-group-item">
+            <div class="row">
+                <div class="forms col">
+                    <h3 class="fw-normal" style="margin-bottom: 45px;">Create group</h3>
+                    <a href="/dashboard/new_group"><button class="w-100 btn btn-lg btn-success">New group</button></a>
+                </div>
+                <div class="forms col float-right" id="join_form">
+                    <form id="join_group_form" name="join_group_form">
+                        <h3 class="fw-normal right">Join group</h3>
+                        <label for="token_input" class="visually-hidden">Access token</label>
+                        <input id="token_input" class="form-control" placeholder="Access token" reguired>
+                        <button class="w-100 btn btn-lg btn-success" type="submit">Join</button> 
+                    </form>
+                </div>
+            </div>
+        </li>
+        <a href="/group/nawiasy">
+            <li class="list-group-item">
+                    {# <button type="button" class="w-100 btn btn-lg btn-primary">Nawiasy</button>  #}
+                <p class="header">Nawiasy</p>
+                <p class="font-description fst-italic text-muted"><small>Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki 
+                Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki 
+                Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki Ziomki-poziomki </small></p>
+            </li>
+        </a>
+        <a href="/group/Latarnia">
+            <li class="list-group-item">
+                {# <button type="button" class="w-100 btn btn-lg btn-primary">Latarnia</button>  #}
+                <p class="header">Latarnia</p>
+                <p class="font-description fst-italic text-muted"><small>reszta ziomków-poziomków</small></p>
+            </li>
+        </a>
+        {# {% for object in object_list %}
+        <li class="list-group-item">
+            <div class="forms">
+                <button type="button" class="w-100 btn btn-lg btn-primary">{{object.name}}</button> 
+                <p class="font-description fst-italic text-muted"><small>{{object.description}}</small></p>
+            </div>
+        </li>
+        {% endfor %} #}
+        </ul>
+        </main>
+
+        <!-- Bootstrap stuff -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    </body>
+</html>
