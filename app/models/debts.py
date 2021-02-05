@@ -1,8 +1,6 @@
 from flask import g
 import psycopg2
 
-from . import run_single_query
-
 # DB debts table fields:
 # id -> int
 # expense_id -> int
@@ -11,9 +9,9 @@ from . import run_single_query
 # amount_owed -> float
 
 # Creates new debt
-def create(expense_id, debtor_id, amount_paid, amount_owed):
+def create(expense_id, debtor_id, amount_owed):
     query = """INSERT INTO debts (expense_id, debtor_id, amount_paid, amount_owed)
-               VALUES (%(expense_id)s, %(debtor_id)s, %(amount_paid)s, %(amount_owed)s)
+               VALUES (%(expense_id)s, %(debtor_id)s, 0, %(amount_owed)s)
                RETURNING *;
             """
 
@@ -22,7 +20,6 @@ def create(expense_id, debtor_id, amount_paid, amount_owed):
     params = {
         'expense_id': expense_id,
         'debtor_id': debtor_id,
-        'amount_paid': amount_paid,
         'amount_owed': amount_owedall
     }
 
@@ -36,7 +33,8 @@ def create(expense_id, debtor_id, amount_paid, amount_owed):
 def update_amount_paid_by_id(debt_id, amount_paid):
     query = """UPDATE debts
                SET amount_paid = %(amount_paid)s
-               WHERE id = %(debt_id)s;
+               WHERE id = %(debt_id)s
+               RETURNING *;
                """
 
     # UPDATE debts SET amount_paid = %(amount_paid)s WHERE id = %(debt_id)s RETURNING *;
@@ -51,7 +49,6 @@ def update_amount_paid_by_id(debt_id, amount_paid):
     returned_rows = cursor.fetchone()
 
     return returned_rows
-
 
 
 # Gets debt with given expense_id

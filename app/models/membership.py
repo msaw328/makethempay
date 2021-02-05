@@ -28,9 +28,9 @@ def get_by_user_id(user_id):
 
 # Adds user into the group
 def join(user_id, group_id, user_display_name, status):
-    query = """ INSERT INTO memberships (user_id, group_id, user_display_name, status)
-                VALUES (%(user_id)s, %(group_id)s, %(user_display_name)s, %(status)s)
-                RETURNING *;
+    query = """INSERT INTO memberships (user_id, group_id, user_display_name, status)
+               VALUES (%(user_id)s, %(group_id)s, %(user_display_name)s, %(status)s)
+               RETURNING *;
               """
 
     # INSERT INTO memberships (user_id, group_id, user_display_name, status) VALUES (4, 1, 'Maćko', 'aaaktywny') RETURNING *;
@@ -48,6 +48,23 @@ def join(user_id, group_id, user_display_name, status):
 
     return returned_rows
 
-#if user in group
+# Checks if user is in group
 def if_user_in_group(user_id, group_id):
-    pass
+    query = """SELECT EXISTS( 
+               SELECT *
+               FROM memberships
+               WHERE user_id=%(user_id)s and group_id=%(group_id)s);
+            """
+
+    # SELECT EXISTS(SELECT * FROM memberships WHERE user_id=3 and group_id=1);
+    
+    params = {
+        'user_id': user_id,
+        'group_id': group_id
+    }
+
+    cursor = g.dbconn.cursor()
+    cursor.execute(query, params)
+    returned_row = cursor.fetchone()
+
+    return returned_row['exists']

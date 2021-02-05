@@ -7,6 +7,9 @@ def create(user_display_name, access_token, description):
                 VALUES (%(user_display_name)s, %(access_token)s, %(description)s)
                 RETURNING *;
             """
+
+    # INSERT INTO groups (display_name, access_token, description) VALUES ('Nawiasy', 'xd', 'opisek') RETURNING *;
+
     params = {
         'user_display_name': user_display_name,
         'access_token': access_token,
@@ -21,7 +24,3 @@ def create(user_display_name, access_token, description):
 
 def get_by_access_token(access_token):
     pass
-
-"""
-INSERT INTO groups (display_name, access_token, description) VALUES ('Nawiasy', 'xd', 'opisek') RETURNING *;
-"""

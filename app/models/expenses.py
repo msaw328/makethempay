@@ -1,8 +1,6 @@
 from flask import g
 import psycopg2
 
-from . import run_single_query
-
 # DB expenses table fields:
 # id -> int
 # creator_id -> int
@@ -29,6 +27,7 @@ def create(creditor_id, name, description):
     returned_rows = cursor.fetchone()
 
     return returned_rows
+
 
 # Gets expense with given group_id 
 def get_by_group_id(group_id):
