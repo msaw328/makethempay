@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0057ad;">
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #0057ad;">
     <div class="container-xl">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".dual-collapse" aria-controls="navbarBurger" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -12,8 +12,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('auth.ui_login') }}">Login</a>
                 </li>
-                {% endif %}
-                {% if is_logged_in() %}
+                {% else %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('auth.ui_secret') }}">Secret</a>
                 </li>
