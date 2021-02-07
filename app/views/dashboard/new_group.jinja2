@@ -19,12 +19,11 @@
                     e.stopPropagation()
 
                     let requestData = form_to_obj(new_group_form)
-                    let url = Flask.url_for('<ENDPOINT WHICH DOES NOT EXIST YET>')         
+                    let url = Flask.url_for('member.api_create_add_member')         
 
                     async_json_request(url, 'POST', JSON.stringify(requestData), (data) => {
-                        console.log(data)
-
                         if(data.success) {
+                             window.location = Flask.url_for('auth.ui_secret')
                         } else {
                             add_alert(data.error)
                         }
@@ -47,10 +46,10 @@
             <div class="forms text-center" id="new_group">
                 <form id="new_group_form" name="new_group_form">
                     <h1 class="h2 mb-3 fw-normal">Create group</h1>
-                    <label for="group_name_input" class="visually-hidden">Group name</label>
-                    <input id="group_name_input" class="form-control" placeholder="Group name" reguired>
-                    <label for="group_desc_input" class="visually-hidden">Description</label>
-                    <input id="group_desc_input" class="form-control" placeholder="Description" reguired>
+                    <input name="group_display_name" class="form-control" placeholder="Group name" reguired>
+                    <input name="user_display_name" class="form-control" placeholder="Your name" reguired>
+                    <input name="status" class="form-control" placeholder="Your status" reguired>
+                    <input name="description" class="form-control" placeholder="Description" reguired>
                     <button class="w-100 btn btn-lg btn-primary" type="submit">Create</button>
                 </form>
             </div>

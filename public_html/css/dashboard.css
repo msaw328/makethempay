@@ -17,6 +17,13 @@ a {
     text-decoration: none;
 }
 
+button.new_grp_butt {
+    max-height: 90px;
+    height: 80%;
+    max-width: 230px;
+    width: 100%;
+}
+
 .forms {
     width: 100%;
     padding: 15px;
