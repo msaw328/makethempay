@@ -47,7 +47,7 @@ def join(user_id, group_id, user_display_name, status):
     return returned_rows
 
 # Checks if user is in group
-def if_user_in_group(user_id, group_id):
+def is_user_in_group(user_id, group_id):
     query = """SELECT EXISTS( 
                SELECT *
                FROM memberships

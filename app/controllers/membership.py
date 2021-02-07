@@ -59,13 +59,12 @@ def api_add_member():
             'error': 'Missing parameters or wrong type of parameters'
         })
 
-
     user_id = session['user_data']['id']
     access_token = request.json['access_token']
     user_display_name = request.json['user_display_name']
     status = request.json['status']
 
-    # Valid token length
+    # Validate token length
     if not len(access_token) == 31:
         return jsonify({
             'success': False,
@@ -73,17 +72,32 @@ def api_add_member():
         })
 
     try:
-        db_group = group.get_by_access_token(
-            access_token
+        db_group = group.get_by_access_token(access_token)
+
+        # If group with AccTkn does not exist
+        if db_group is None:
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'Group with this access token does not exist'
+            })
+
+        # Check if user is in the group
+        is_user_in_group = member.is_user_in_group(user_id, db_group['id'])
+
+        if is_user_in_group:
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'User is already in the group'
+            })
+
+        db_result = member.join(
+            user_id,
+            db_group['id'],
+            user_display_name,
+            status
         )
-        # If group with AccTkn exists
-        if not db_group is None:
-            db_result = member.join(
-                user_id,
-                db_group['id'],
-                user_display_name,
-                status
-            )
     except psycopg2.Error as e:
         rollback_transaction()
         return jsonify({
@@ -93,16 +107,10 @@ def api_add_member():
     else:
         commit_transaction()
 
-    if db_group is None:
-        return jsonify({
-            'success': False,
-            'error': 'Group with this access token does not exist'
-        })
-
     if db_result is None:
         return jsonify({
             'success': False,
-            'error': 'Can not add user into group. Please, valid your input'
+            'error': 'Can not add user into group. Please, validate your input'
         })
 
     return jsonify({
@@ -115,6 +123,7 @@ def api_add_member():
 def api_create_add_member():
     req_check = is_json_request_valid(request, {
         'user_display_name': str,
+        'group_display_name': str,
         'status': str,
         'description': str
     })
@@ -127,13 +136,20 @@ def api_create_add_member():
 
     user_id = session['user_data']['id']
     user_display_name = request.json['user_display_name']
+    group_display_name = request.json['group_display_name']
     status = request.json['status']
     access_token = generate_valid_token() 
     description = request.json['description']
 
+    if access_token is None:
+        return jsonify({
+            'success': False,
+            'error': 'Invalid token'
+        })
+
     try:
         new_group = group.create(
-            user_display_name,
+            group_display_name,
             access_token,
             description
         )
@@ -157,6 +173,46 @@ def api_create_add_member():
         'result': db_result
     })
 
+# Update token function
+@router.route('/api/updatetoken', methods=['POST'])
+def api_update_token():
+    req_check = is_json_request_valid(request, {
+        'access_token': str
+    })
+
+    if not req_check:
+        return jsonify({
+            'success': False,
+            'error': 'Missing parameters or wrong type of parameters'
+        })
+
+    new_token = generate_valid_token() 
+    old_token = request.json['access_token']
+
+    if new_token is None:
+        return jsonify({
+            'success': False,
+            'error': 'Invalid token'
+        })
+
+    try:
+        db_result = group.update_token(
+            new_token,
+            old_token
+        )
+    except psycopg2.Error as e:
+        rollback_transaction()
+        return jsonify({
+            'success': False,
+            'error': 'Database error'
+        })
+    else:
+        commit_transaction()
+
+    return jsonify({
+        'success': True,
+        'result': db_result
+    })
 
 # Generate random string
 def gen_str():
@@ -165,7 +221,7 @@ def gen_str():
 
     return ''.join(random.choice(words_set) for _ in range(token_length))
 
-# Valid if token exist and return token if unique
+# Validate if token exist and return token if unique
 def generate_valid_token():
     old_token = ""
 
@@ -175,10 +231,7 @@ def generate_valid_token():
             old_token = group.get_by_access_token(new_token)
         except psycopg2.Error as e:
             rollback_transaction()
-            return jsonify({
-                'success': False,
-                'error': 'Database error'
-            })
+            return None
         else:
             commit_transaction()
 
