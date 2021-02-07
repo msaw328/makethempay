@@ -18,6 +18,10 @@ router = Blueprint('member', __name__, template_folder='../views')
 def ui_dashboard():
     return render_template('/membership/member.jinja2')
 
+@router.route('/group/<int:group_id>', methods=['GET'])
+def ui_show_group(group_id):
+    return
+
 # Get user's groups
 @router.route('/api/me/groups', methods=['GET'])
 def api_member():    
@@ -49,8 +53,7 @@ def api_member():
 def api_add_member():
     req_check = is_json_request_valid(request, {
         'access_token': str,
-        'user_display_name': str,
-        'status': str
+        'user_display_name': str
     })
 
     if not req_check:
@@ -59,10 +62,14 @@ def api_add_member():
             'error': 'Missing parameters or wrong type of parameters'
         })
 
+    if 'status' in request.json and isinstance(request.json['status'], str):
+        status = request.json['status']
+    else:
+        status = None
+
     user_id = session['user_data']['id']
     access_token = request.json['access_token']
     user_display_name = request.json['user_display_name']
-    status = request.json['status']
 
     # Validate token length
     if not len(access_token) == 31:
@@ -123,23 +130,29 @@ def api_add_member():
 def api_create_add_member():
     req_check = is_json_request_valid(request, {
         'user_display_name': str,
-        'group_display_name': str,
-        'status': str,
-        'description': str
+        'group_display_name': str
     })
 
-    if not req_check:
+    if not req_check or request.json['group_display_name'] == "" or request.json['user_display_name'] == "":
         return jsonify({
             'success': False,
             'error': 'Missing parameters or wrong type of parameters'
         })
 
+    if 'status' in request.json and isinstance(request.json['status'], str):
+        status = request.json['status']
+    else:
+        status = None
+
+    if 'description' in request.json and isinstance(request.json['description'], str):
+        description = request.json['status']
+    else:
+        description = None
+
     user_id = session['user_data']['id']
     user_display_name = request.json['user_display_name']
     group_display_name = request.json['group_display_name']
-    status = request.json['status']
     access_token = generate_valid_token() 
-    description = request.json['description']
 
     if access_token is None:
         return jsonify({
