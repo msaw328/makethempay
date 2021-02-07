@@ -19,7 +19,7 @@ def ui_debt():
     return render_template('/debts/debt.jinja2')
 
 # API routes, accept and return JSON
-@router.route('/api/ingroup/<int:group_id>/update', methods=['POST'])
+@router.route('/api/update', methods=['POST'])
 def api_update_amount_paid(group_id):
     user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
 
@@ -56,6 +56,7 @@ def api_update_amount_paid(group_id):
     amount_paid = request.json['amount_paid']
 
     try:
+        # sprawdzić jeszcze czy paid <= owed
         debtsmodel.update_amount_paid_by_id(debt_id, amount_paid)
     except psycopg2.Error as e:
         rollback_transaction()
@@ -73,33 +74,16 @@ def api_update_amount_paid(group_id):
     })
 
 
-@router.route('/api/ingroup/<int:group_id>/inexpense/<int:expense_id>', methods=['GET'])
-def api_get_debts(group_id, expense_id):
+@router.route('/api/inexpense/<int:expense_id>', methods=['GET'])
+def api_get_debts(expense_id):
     user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
 
-    # NIE JESTEM PEWIEN, CZY KONIECZNE JEST SPRAWDZANIE CZY USER JEST W GRUPIE, 
-    # SKORO SPRAWDZAMY TO W KONTROLERZE EXPENSES, A EXPENSES JEST JAKBY WYŻEJ W HIERARCHII
-    # Check if user is in group
-    try:
-        user_is_in_group = membership.if_user_in_group(user_id, group_id)
-    except psycopg2.Error as e:
-        rollback_transaction()
-        return jsonify({
-            'success': False,
-            'error': 'Database error'
-        })
-    else:
-        commit_transaction()
-
-    if not user_is_in_group:
-        return jsonify({
-            'success': False,
-            'error': 'This user does not have access to this group'
-        })
-
+    
+    # WZIĄĆ GROUP_ID Z EXPENSA I SPRAWDZIĆ, CZY USER MA DOSTĘP DO GRUPY JUŻ W TRY
     # If user is in group return debts
     try:
         data = debtsmodel.get_by_expense_id(expense_id)
+        user_is_in_group = membership.if_user_in_group(user_id, group_id)
     except psycopg2.Error as e:
         rollback_transaction()
         return jsonify({

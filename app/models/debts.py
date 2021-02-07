@@ -20,7 +20,7 @@ def create(expense_id, debtor_id, amount_owed):
     params = {
         'expense_id': expense_id,
         'debtor_id': debtor_id,
-        'amount_owed': amount_owedall
+        'amount_owed': amount_owed
     }
 
     cursor = g.dbconn.cursor()

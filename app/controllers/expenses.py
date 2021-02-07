@@ -43,7 +43,7 @@ def api_create_expense(group_id):
     if not user_is_in_group:
         return jsonify({
             'success': False,
-            'error': 'This user does not have access to this group'
+            'error': 'You do not have access to this group'
         })
 
     
@@ -80,20 +80,18 @@ def api_create_expense(group_id):
     name = request.json['name']
     debtors = request.json['debtors']
 
-    # Check if debtors list is valid:
-    if not debtors.is_json:
+    # Check if expense has at least one debt
+    if len(debtors) < 1:
         return jsonify({
             'success': False,
-            'error': 'Missing parameters or wrong type of parameters in debtors list'
+            'error': 'You have to specify at least one debtor in the expense'
         })
 
+
     for debtor in debtors:
-        if not debtor['debtor_id'] in debtor or not isinstance(debtor['debtor_id'], int):
-            return jsonify({
-                'success': False,
-                'error': 'Missing parameters or wrong type of parameters in debtors list'
-            })
-        if not debtor['amount_owed'] in debtor or not isinstance(debtor['amount_owed'], float):
+        debtor_id_ok = 'debtor_id' in debtor and isinstance(debtor['debtor_id'], int)
+        amount_owed_ok = 'amount_owed' in debtor and isinstance(debtor['amount_owed'], float)
+        if not debtor_id_ok or not amount_owed_ok:
             return jsonify({
                 'success': False,
                 'error': 'Missing parameters or wrong type of parameters in debtors list'
