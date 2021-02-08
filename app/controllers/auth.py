@@ -74,7 +74,7 @@ def api_register():
 
     # at this point all checks have been performed, we can create a new user
     pw_hash = argon2.hash(password)
-    
+
     try:
         usermodel.create(email, pw_hash)
     except psycopg2.Error as e:
