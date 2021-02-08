@@ -46,7 +46,7 @@ def api_update_amount_paid():
                 'success': False,
                 'error': 'There is not debt with given id'
             })
-        if not membership.if_user_in_group(user_id, group_id):
+        if not membership.is_user_in_group(user_id, group_id):
             rollback_transaction()
             return jsonify({
                 'success': False,
@@ -90,7 +90,7 @@ def api_get_debts(expense_id):
                 'success': False,
                 'error': 'There is not expense with given id'
             })
-        if not membership.if_user_in_group(user_id, group_id):
+        if not membership.is_user_in_group(user_id, group_id):
             rollback_transaction()
             return jsonify({
                 'success': False,

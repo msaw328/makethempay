@@ -49,6 +49,26 @@ def get_by_group_id(group_id):
 
     return returned_rows
 
+# Gets expense with given id
+def get_by_id(id):
+    query = """SELECT creditor_id, name, description
+               FROM expenses
+               WHERE id = %(id)s;
+            """
+
+    # SELECT creditor_id, name, description FROM expenses WHERE id = 1;
+
+    params = {
+        'id': id
+    }
+
+    cursor = g.dbconn.cursor()
+    cursor.execute(query, params)
+    returned_rows = cursor.fetchone()
+
+    return returned_rows
+
+
 # Gets group id with given expense id
 def get_group_id(expense_id):
     query = """SELECT m.group_id

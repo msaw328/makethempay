@@ -30,7 +30,7 @@ def api_create_expense(group_id):
 
     # Check if user is in group
     try:
-        user_is_in_group = membership.if_user_in_group(user_id, group_id)
+        user_is_in_group = membership.is_user_in_group(user_id, group_id)
     except psycopg2.Error as e:
         rollback_transaction()
         return jsonify({
@@ -128,12 +128,12 @@ def api_create_expense(group_id):
     })
 
 @router.route('/api/ingroup/<int:group_id>', methods=['GET'])
-def api_get_expense(group_id):
+def api_get_expenses(group_id):
     user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
 
     # Check if user is in group
     try:
-        user_is_in_group = membership.if_user_in_group(user_id, group_id)
+        user_is_in_group = membership.is_user_in_group(user_id, group_id)
     except psycopg2.Error as e:
         rollback_transaction()
         return jsonify({
@@ -152,6 +152,41 @@ def api_get_expense(group_id):
     # If user is in group return expense
     try:
         data = expensesmodel.get_by_group_id(group_id)
+    except psycopg2.Error as e:
+        rollback_transaction()
+        return jsonify({
+            'success': False,
+            'error': 'Database error'
+        })
+    else:
+        commit_transaction()
+
+    return jsonify({
+        'success': True,
+        'result': data
+    })
+
+
+@router.route('/api/<int:expense_id>', methods=['GET'])
+def api_get_expense_by_id(expense_id):
+    user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
+
+    # If user is in group return expense
+    try:
+        data = expensesmodel.get_by_id(expense_id)
+        group_id = expensesmodel.get_group_id(expense_id)
+        if group_id == None:
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'There is not expense with given id'
+            })
+        if not membership.is_user_in_group(user_id, group_id):
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'This user does not have access to this group'
+            })
     except psycopg2.Error as e:
         rollback_transaction()
         return jsonify({
