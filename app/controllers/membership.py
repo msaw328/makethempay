@@ -22,6 +22,10 @@ def ui_home():
 def ui_show_group(group_id):
     return
 
+@router.route('/group/new', methods=['GET'])
+def ui_new_group():
+    return render_template('/membership/new_group.jinja2')
+
 # Get user's groups
 @router.route('/api/me/groups', methods=['GET'])
 def api_member():    

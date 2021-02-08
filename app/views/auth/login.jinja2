@@ -25,7 +25,7 @@
                         console.log(data)
 
                         if(data.success) {
-                            window.location = Flask.url_for('auth.ui_secret')
+                            window.location = Flask.url_for('member.home')
                         } else {
                             add_alert(data.error)
                         }

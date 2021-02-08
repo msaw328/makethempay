@@ -22,11 +22,6 @@ def ui_register():
 def ui_login():
     return render_template('/auth/login.jinja2')
 
-@router.route('/secret', methods=['GET'])
-@login.required(goto='auth.ui_login')
-def ui_secret():
-    return render_template('/dashboard/dashboard.jinja2')
-
 # API routes, accept and return JSON
 @router.route('/api/register', methods=['POST'])
 def api_register():
