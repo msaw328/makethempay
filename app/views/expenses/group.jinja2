@@ -12,6 +12,10 @@
             import { add_alert } from "/static/js/alerts.js"
 
                 function render_debtor_obj(obj) {
+                    let display_name = obj["user_display_name"]
+                    let amount_owed = obj["amount_owed"]
+                    let amount = obj["amount_owed"] - obj["amount_paid"]
+
                     let item = document.createElement("li")
                     item.className = "list-group-item"
                     let div1 = document.createElement("div")
@@ -20,17 +24,16 @@
                     div2.className = "col-2"
                     let p2 = document.createElement("p")
                     p2.className = "header"
-                    p2.innerHTML = obj["user_display_name"]
+                    p2.innerHTML = display_name
                     div2.appendChild(p2)
                     let div3 = document.createElement("div")
                     div3.className = "col-3"
                     let p3 = document.createElement("p")
-                    p3.innerHTML = obj["amount_owed"]
+                    p3.innerHTML = amount_owed
                     div3.appendChild(p3)
                     let div4 = document.createElement("div")
                     div4.className = "col-3"
                     let p4 = document.createElement("p")
-                    let amount = obj["amount_owed"] - obj["amount_paid"]
                     p4.innerHTML = amount
                     div4.appendChild(p4)
                     let div5 = document.createElement("div")
@@ -38,15 +41,22 @@
                     let input1 = document.createElement("input")
                     input1.name = "amount_paid"
                     input1.type = "number"
-                    input1.placeholder = obj["amount_owed"] - obj["amount_paid"]
-                    div5.appendChild(input1)
+                    input1.placeholder = amount
                     let div6 = document.createElement("div")
                     div6.className = "col-1"
                     let butt1 = document.createElement("button")
                     butt1.className = "w-75 btn btn-sm btn-success"
                     butt1.type = "submit"
                     butt1.innerHTML = "PAY"
-                    div6.appendChild(butt1)
+
+                    if (amount != 0) {
+                        div5.appendChild(input1)
+                        div6.appendChild(butt1)
+                    } else {
+                        let p_already_paid = document.createElement("p")
+                        p_already_paid.innerHTML = "This debt is already paid"
+                        div5.appendChild(p_already_paid)
+                    }
 
                     div1.appendChild(div2)
                     div1.appendChild(div3)
