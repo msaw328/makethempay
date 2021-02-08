@@ -48,12 +48,30 @@ def join(user_id, group_id, user_display_name, status):
 
     return returned_rows
 
-# Checks if user is in group
-def is_user_in_group(user_id, group_id):
-    query = """SELECT EXISTS( 
-               SELECT *
+# Get members in group
+def get_all_members(group_id):
+    query = """SELECT *
                FROM memberships
-               WHERE user_id=%(user_id)s AND group_id=%(group_id)s);
+               WHERE group_id=%(group_id)s;
+            """
+
+    params = {
+        'group_id': group_id
+    }
+
+    cursor = g.dbconn.cursor()
+    cursor.execute(query, params)
+    returned_rows = cursor.fetchall()
+
+    return returned_rows
+    
+
+# Checks if user is in group
+def get_user_in_group(user_id, group_id):
+    query = """SELECT *
+               FROM memberships
+               WHERE user_id=%(user_id)s AND group_id=%(group_id)s
+               LIMIT 1;
             """
 
     # SELECT EXISTS(SELECT * FROM memberships WHERE user_id=3 and group_id=1);
@@ -67,4 +85,4 @@ def is_user_in_group(user_id, group_id):
     cursor.execute(query, params)
     returned_row = cursor.fetchone()
 
-    return returned_row['exists']
+    return returned_row

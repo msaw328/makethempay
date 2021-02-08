@@ -22,7 +22,7 @@
                 item.className = "list-group-item group-widget"
                 item.dataset.group_id = obj['group_id']
                 item.onclick = function () {
-                    window.location = Flask.url_for("member.ui_show_group", {"group_id": item.dataset.group_id})
+                    window.location = Flask.url_for("expenses.ui_group_dashboard", {"group_id": item.dataset.group_id})
                 }
                 let par1 = document.createElement("p")
                 par1.className = "header"

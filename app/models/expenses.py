@@ -31,7 +31,7 @@ def create(creditor_id, name, description):
 
 # Gets expense with given group_id 
 def get_by_group_id(group_id):
-    query = """SELECT e.creditor_id, e.name, e.description, m.user_display_name
+    query = """SELECT e.id, e.creditor_id, e.name, e.description, m.user_display_name
                FROM expenses e
                JOIN memberships m ON e.creditor_id = m.id
                WHERE m.group_id = %(group_id)s;

@@ -52,6 +52,40 @@ def api_member():
         'result': db_result
     })
 
+# Get groups data from group_id
+@router.route('/api/group/<int:group_id>', methods=['GET'])
+def api_get_group_by_id(group_id):
+    user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
+
+    # If user is in group return expense
+    try:
+        data = group.get_by_id(group_id)
+        if group_id == None:
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'There is not expense with given id'
+            })
+        if member.get_user_in_group(user_id, group_id) is None:
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'This user does not have access to this group'
+            })
+    except psycopg2.Error as e:
+        rollback_transaction()
+        return jsonify({
+            'success': False,
+            'error': 'Database error'
+        })
+    else:
+        commit_transaction()
+
+    return jsonify({
+        'success': True,
+        'result': data
+    })
+
 # Add user into existing group
 @router.route('/api/join', methods=['POST'])
 def api_add_member():

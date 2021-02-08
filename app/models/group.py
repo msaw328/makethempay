@@ -42,6 +42,25 @@ def get_by_access_token(access_token):
 
     return returned_rows
 
+# Gets expense with given id
+def get_by_id(id):
+    query = """SELECT display_name, access_token, description
+               FROM groups
+               WHERE id = %(id)s;
+            """
+
+    # SELECT display_name, access_token, description description FROM groups WHERE id = 1;
+
+    params = {
+        'id': id
+    }
+
+    cursor = g.dbconn.cursor()
+    cursor.execute(query, params)
+    returned_rows = cursor.fetchone()
+
+    return returned_rows
+
 # Set new token for existing group
 def update_token(new_token, old_token):
     query = """

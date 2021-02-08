@@ -23,6 +23,16 @@ def ui_dashboard():
 def ui_expense(expense_id):
     return render_template('/expenses/expense.jinja2', expense_id = expense_id)
 
+@router.route('/ingroup/<int:group_id>/create', methods=['GET'])
+@login.required(goto='auth.ui_login')
+def ui_new_expense(group_id):
+    return render_template('/expenses/new.jinja2', group_id = group_id)
+
+@router.route('/group/<int:group_id>', methods=['GET'])
+@login.required(goto='auth.ui_login')
+def ui_group_dashboard(group_id):
+    return render_template('/expenses/group_dashboard.jinja2', group_id = group_id)
+
 # API routes, accept and return JSON
 @router.route('/api/ingroup/<int:group_id>/create', methods=['POST'])
 def api_create_expense(group_id):
@@ -30,7 +40,15 @@ def api_create_expense(group_id):
 
     # Check if user is in group
     try:
-        user_is_in_group = membership.is_user_in_group(user_id, group_id)
+        user_membership = membership.get_user_in_group(user_id, group_id)
+        if user_membership is None:
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'You do not have access to this group'
+            })
+        creditor_id = user_membership['id']
+        members = membership.get_all_members(group_id)
     except psycopg2.Error as e:
         rollback_transaction()
         return jsonify({
@@ -40,15 +58,13 @@ def api_create_expense(group_id):
     else:
         commit_transaction()
 
-    if not user_is_in_group:
-        return jsonify({
-            'success': False,
-            'error': 'You do not have access to this group'
-        })
-
+    # WHAT WE HAVE:
+    # "name": str,
+    # "description": str,
+    # "all_amount_owed": str
+    # group_id z urla
     
-    # EXAMPLE JSON:
-    # "creditor_id": int,
+    # WHAT WE EXPECTED TO HAVE:
     # "name": str,
     # "description": str,
     # "debtors": [
@@ -65,9 +81,8 @@ def api_create_expense(group_id):
     
     req_check = is_json_request_valid(request, {
         # EXPENSES:
-        'creditor_id': int,
         'name': str,
-        'debtors': list
+        'all_amount_owed': str
     })
 
     if not req_check:
@@ -76,26 +91,24 @@ def api_create_expense(group_id):
             'error': 'Missing parameters or wrong type of parameters'
         })
 
-    creditor_id = request.json['creditor_id']
     name = request.json['name']
-    debtors = request.json['debtors']
+    all_amount_owed = request.json['all_amount_owed']
 
     # Check if expense has at least one debt
-    if len(debtors) < 1:
-        return jsonify({
-            'success': False,
-            'error': 'You have to specify at least one debtor in the expense'
-        })
+    # if len(debtors) < 1:
+    #     return jsonify({
+    #         'success': False,
+    #         'error': 'You have to specify at least one debtor in the expense'
+    #     })
 
-
-    for debtor in debtors:
-        debtor_id_ok = 'debtor_id' in debtor and isinstance(debtor['debtor_id'], int)
-        amount_owed_ok = 'amount_owed' in debtor and isinstance(debtor['amount_owed'], float)
-        if not debtor_id_ok or not amount_owed_ok:
-            return jsonify({
-                'success': False,
-                'error': 'Missing parameters or wrong type of parameters in debtors list'
-            })
+    # for debtor in debtors:
+    #     debtor_id_ok = 'debtor_id' in debtor and isinstance(debtor['debtor_id'], int)
+    #     amount_owed_ok = 'amount_owed' in debtor and isinstance(debtor['amount_owed'], float)
+    #     if not debtor_id_ok or not amount_owed_ok:
+    #         return jsonify({
+    #             'success': False,
+    #             'error': 'Missing parameters or wrong type of parameters in debtors list'
+    #         })
 
     # Check if descritpion of expense exists
     if 'description' in request.json and isinstance(request.json['description'], str):
@@ -106,11 +119,11 @@ def api_create_expense(group_id):
     try:
         expense_data = expensesmodel.create(creditor_id, name, description)
         expense_id = expense_data['id']
-        for debtor in debtors:
+        for member in members:
             debts.create(
                 expense_id,
-                debtor['debtor_id'],
-                debtor['amount_owed']
+                member['id'],
+                all_amount_owed/len(members)
                 )
     except psycopg2.Error as e:
         rollback_transaction()
@@ -133,7 +146,13 @@ def api_get_expenses(group_id):
 
     # Check if user is in group
     try:
-        user_is_in_group = membership.is_user_in_group(user_id, group_id)
+        user_membership = membership.get_user_in_group(user_id, group_id)
+        if user_membership is None:
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'You do not have access to this group'
+            })
     except psycopg2.Error as e:
         rollback_transaction()
         return jsonify({
@@ -142,12 +161,6 @@ def api_get_expenses(group_id):
         })
     else:
         commit_transaction()
-
-    if not user_is_in_group:
-        return jsonify({
-            'success': False,
-            'error': 'This user does not have access to this group'
-        })
 
     # If user is in group return expense
     try:
@@ -181,7 +194,7 @@ def api_get_expense_by_id(expense_id):
                 'success': False,
                 'error': 'There is not expense with given id'
             })
-        if not membership.is_user_in_group(user_id, group_id):
+        if membership.get_user_in_group(user_id, group_id) is None:
             rollback_transaction()
             return jsonify({
                 'success': False,
