@@ -133,7 +133,7 @@ def api_create_add_member():
         'group_display_name': str
     })
 
-    if not req_check or request.json['group_display_name'] == "" or request.json['user_display_name'] == "":
+    if not req_check or not request.json['group_display_name'] or not request.json['user_display_name']:
         return jsonify({
             'success': False,
             'error': 'Missing parameters or wrong type of parameters'

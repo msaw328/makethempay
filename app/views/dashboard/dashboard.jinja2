@@ -6,6 +6,12 @@
         <title>
             Dashboard
         </title>
+        <style>
+            .group-widget:hover {
+                cursor: pointer;
+                background-color: #f0f0f0;
+            }
+        </style>
         {{ JSGlue.include() }}
         <script type="module">
             import { form_to_obj, async_json_request } from "/static/js/form_utils.js"
@@ -13,12 +19,11 @@
 
             function render_group_obj(obj) {
                 let item = document.createElement("li")
-                item.className = "list-group-item"
-                item.dataset.location = Flask.url_for("member.ui_show_group", {"group_id": obj['group_id']})
+                item.className = "list-group-item group-widget"
+                item.dataset.group_id = obj['group_id']
                 item.onclick = function () {
-                    window.location = item.dataset.location
+                    window.location = Flask.url_for("member.ui_show_group", {"group_id": item.dataset.group_id})
                 }
-
                 let par1 = document.createElement("p")
                 par1.className = "header"
                 par1.appendChild(document.createTextNode(obj['display_name']))
