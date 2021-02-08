@@ -13,10 +13,10 @@ from ..models import commit_transaction, rollback_transaction
 # basic Blueprint router to which routes will be attached
 router = Blueprint('member', __name__, template_folder='../views')
 
-@router.route('/', methods=['GET'])
+@router.route('/home', methods=['GET'])
 # @login.required(goto='auth.ui_login')
-def ui_dashboard():
-    return render_template('/membership/member.jinja2')
+def ui_home():
+    return render_template('/membership/home.jinja2')
 
 @router.route('/group/<int:group_id>', methods=['GET'])
 def ui_show_group(group_id):

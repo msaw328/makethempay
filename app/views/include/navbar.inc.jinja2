@@ -14,19 +14,18 @@
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.ui_secret') }}">Secret</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">My groups</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">My account</a>
+                    <a class="nav-link" href="{{ url_for('member.ui_home') }}">Home</a>
                 </li>
                 {% endif %}
             </ul>
         </div>
         <div class="mx-auto order-0">
-            <a class="navbar-brand mx-auto" href="#">MAKE THEM PAY</a>
+            <a class="navbar-brand mx-auto" href="
+                {% if not is_logged_in() %}
+                    {{ url_for('auth.ui_login') }}
+                {% else %}
+                    {{ url_for('member.ui_home') }}
+                {% endif %}">MAKE THEM PAY</a>
         </div>
         <div class="navbar-collapse collapse w-100 order-3 dual-collapse">
             <ul class="navbar-nav ms-auto">
