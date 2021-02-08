@@ -48,3 +48,27 @@ def get_by_group_id(group_id):
     returned_rows = cursor.fetchall()
 
     return returned_rows
+
+# Gets group id with given expense id
+def get_group_id(expense_id):
+    query = """SELECT m.group_id
+               FROM expenses e
+               JOIN memberships m ON e.creditor_id = m.id
+               WHERE e.id = %(expense_id)s
+               LIMIT 1;
+               """
+
+    # SELECT m.group_id FROM expenses e JOIN memberships m ON e.creditor_id = m.id WHERE e.id = 1 LIMIT 1;
+
+    params = {
+        'expense_id': expense_id
+    }
+
+    cursor = g.dbconn.cursor()
+    cursor.execute(query, params)
+    returned_row = cursor.fetchone()
+
+    if returned_row == None:
+        return None
+    else:
+        return returned_row['group_id']

@@ -20,26 +20,8 @@ def ui_debt():
 
 # API routes, accept and return JSON
 @router.route('/api/update', methods=['POST'])
-def api_update_amount_paid(group_id):
+def api_update_amount_paid():
     user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
-
-    # Check if user is in group
-    try:
-        user_is_in_group = membership.if_user_in_group(user_id, group_id)
-    except psycopg2.Error as e:
-        rollback_transaction()
-        return jsonify({
-            'success': False,
-            'error': 'Database error'
-        })
-    else:
-        commit_transaction()
-
-    if not user_is_in_group:
-        return jsonify({
-            'success': False,
-            'error': 'This user does not have access to this group'
-        })
 
     req_check = is_json_request_valid(request, {
         'debt_id': int,
@@ -56,8 +38,28 @@ def api_update_amount_paid(group_id):
     amount_paid = request.json['amount_paid']
 
     try:
-        # sprawdzić jeszcze czy paid <= owed
-        debtsmodel.update_amount_paid_by_id(debt_id, amount_paid)
+        data = debtsmodel.update_amount_paid_by_id(debt_id, amount_paid)
+        group_id = expensesmodel.get_group_id(data['expense_id'])
+        if group_id == None:
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'There is not debt with given id'
+            })
+        if not membership.if_user_in_group(user_id, group_id):
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'This user does not have access to this group'
+            })
+        if data['amount_owed'] < amount_paid:
+            rollback_transaction()
+            # MOZĘ BY TU WALNĄĆ TAKIEGO FLASHA:
+            flash('Amount paid cannot be greater than amount owed!')
+            return jsonify({
+                'success': False,
+                'error': 'Amount paid cannot be greater than amount owed'
+            })
     except psycopg2.Error as e:
         rollback_transaction()
         return jsonify({
@@ -78,13 +80,24 @@ def api_update_amount_paid(group_id):
 def api_get_debts(expense_id):
     user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
 
-    
-    # WZIĄĆ GROUP_ID Z EXPENSA I SPRAWDZIĆ, CZY USER MA DOSTĘP DO GRUPY JUŻ W TRY
     # If user is in group return debts
     try:
         data = debtsmodel.get_by_expense_id(expense_id)
-        user_is_in_group = membership.if_user_in_group(user_id, group_id)
+        group_id = expensesmodel.get_group_id(expense_id)
+        if group_id == None:
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'There is not expense with given id'
+            })
+        if not membership.if_user_in_group(user_id, group_id):
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'This user does not have access to this group'
+            })
     except psycopg2.Error as e:
+        print(e)
         rollback_transaction()
         return jsonify({
             'success': False,
