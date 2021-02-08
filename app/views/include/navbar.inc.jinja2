@@ -34,8 +34,27 @@
                 <div class="nav navbar-nav navbar-right">
                     <button class="btn btn-danger" id="logout_button"><b>Logout</b></button>
                 </div>
+
+                <script type="module">
+                    import { async_json_request } from "/static/js/form_utils.js"
+                    let logoutButton = document.getElementById('logout_button')
+
+                    logoutButton.onclick = (e) => {
+                        let url = Flask.url_for('auth.api_logout')
+                        async_json_request(url, 'POST', null, (data) => {
+                            if(data.success) {
+                                window.location = Flask.url_for('auth.ui_login')
+                            } else {
+                                add_alert(data.error)
+                            }
+                        })
+                    }
+                </script>
+                
                 {% endif %}
             </ul>
         </div>
     </div>
 </nav>
+
+
