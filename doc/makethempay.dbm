@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.3-beta1" use-changelog="false" last-position="65,0" last-zoom="1" max-obj-count="6"
+<dbmodel pgmodeler-ver="0.9.3-beta" use-changelog="false" last-position="0,0" last-zoom="1.15" max-obj-count="6"
 	 default-schema="public" default-owner="postgres">
 <database name="makethempay" is-template="false" allow-conns="true">
 </database>
@@ -40,7 +40,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="groups" layer="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1240" y="120"/>
+	<position x="1220" y="100"/>
 	<column name="id" not-null="true">
 		<type name="serial" length="0"/>
 	</column>
@@ -98,7 +98,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="public"/>
 	<role name="postgres"/>
 	<comment><![CDATA[a row in this table describes an expense made as a group]]></comment>
-	<position x="340" y="420"/>
+	<position x="340" y="440"/>
 	<column name="id" not-null="true">
 		<type name="serial" length="0"/>
 	</column>
@@ -160,7 +160,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="public"/>
 	<role name="postgres"/>
 	<comment><![CDATA[checks if debtor is in the same group as creditor of the expense, or if the debtor and creditor is the same person]]></comment>
-	<language name="plpgsql"/>
+	<language name="plpgsql" sql-disabled="true"/>
 	<return-type>
 	<type name="trigger" length="0"/>
 	</return-type>

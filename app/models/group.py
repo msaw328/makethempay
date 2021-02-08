@@ -7,6 +7,9 @@ def create(display_name, access_token, description):
                 VALUES (%(display_name)s, %(access_token)s, %(description)s)
                 RETURNING *;
             """
+
+    # INSERT INTO groups (display_name, access_token, description) VALUES ('Nawiasy', 'xd', 'opisek') RETURNING *;
+
     params = {
         'display_name': display_name,
         'access_token': access_token,
