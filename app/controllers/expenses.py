@@ -18,10 +18,10 @@ router = Blueprint('expenses', __name__, template_folder='../views')
 def ui_dashboard():
     return render_template('/expenses/dashboard.jinja2')
 
-@router.route('/group/<int:expense_id>', methods=['GET'])
+@router.route('/<int:expense_id>', methods=['GET'])
 @login.required(goto='auth.ui_login')
-def ui_group(expense_id):
-    return render_template('/expenses/group.jinja2', expense_id = expense_id)
+def ui_expense(expense_id):
+    return render_template('/expenses/expense.jinja2', expense_id = expense_id)
 
 # API routes, accept and return JSON
 @router.route('/api/ingroup/<int:group_id>/create', methods=['POST'])
