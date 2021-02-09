@@ -23,14 +23,14 @@
                     let requestData = form_to_obj(new_expense_form)
                     let url = Flask.url_for('expenses.api_create_expense', {"group_id": group_id})
                     requestData['all_amount_owed'] = money_to_int(requestData['all_amount_owed'])
-                    console.log(requestData)
 
                     async_json_request(url, 'POST', JSON.stringify(requestData), (data) => {
                         if(data.success) {
-                             window.location = Flask.url_for('expenses.ui_group_dashboard')
+                            window.location = Flask.url_for("expenses.ui_group_dashboard", {"group_id": group_id})
                         } else {
                             add_alert(data.error)
                         }
+
                     })
                 }
             }

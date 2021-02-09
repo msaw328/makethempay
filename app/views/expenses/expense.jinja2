@@ -16,6 +16,7 @@
                     let display_name = obj["user_display_name"]
                     let amount_owed = obj["amount_owed"]
                     let amount = obj["amount_owed"] - obj["amount_paid"]
+                    let debt_id = obj["id"]
 
                     let item = document.createElement("li")
                     item.className = "list-group-item"
@@ -38,21 +39,29 @@
                     p4.innerHTML = int_to_money(amount)
                     div4.appendChild(p4)
                     let div5 = document.createElement("div")
-                    div5.className = "col-3"
+                    let form = document.createElement('form')
+                    form.setAttribute('id', "pay_form")
+                    form.dataset.id = debt_id
+                    let form_div = document.createElement('div')
+                    form_div.className = "col-3"
                     let input1 = document.createElement("input")
                     input1.name = "amount_paid"
                     input1.type = "number"
+                    input1.min = 0
+                    input1.max = amount / 100
                     input1.placeholder = int_to_money(amount)
                     let div6 = document.createElement("div")
-                    div6.className = "col-1"
                     let butt1 = document.createElement("button")
-                    butt1.className = "w-75 btn btn-sm btn-success"
+                    butt1.className = "w-75 btn btn-sm btn-success pay_button"
                     butt1.type = "submit"
                     butt1.innerHTML = "PAY"
 
                     if (amount != 0) {
                         div5.appendChild(input1)
                         div6.appendChild(butt1)
+                        form.appendChild(div5)
+                        form.appendChild(div6)
+                        form_div.appendChild(form)
                     } else {
                         let p_already_paid = document.createElement("p")
                         p_already_paid.innerHTML = "This debt is already paid"
@@ -62,8 +71,7 @@
                     div1.appendChild(div2)
                     div1.appendChild(div3)
                     div1.appendChild(div4)
-                    div1.appendChild(div5)
-                    div1.appendChild(div6)
+                    div1.appendChild(form_div)
                     item.appendChild(div1)
 
                     return item
@@ -74,7 +82,9 @@
                 let participants_list = document.getElementById("participants")
                 let title = document.getElementById('expense-title')
                 let description = document.getElementById('expense-description')
-                
+                let pay_buttons = document.getElementsByClassName("pay_button")
+                let pay_form = document.getElementById("pay_form")
+
                 function participants_list_ui_refresh(participants) {
                     participants_list.innerHTML = ""
 
@@ -86,6 +96,7 @@
                 function get_participants_list_and_update_ui() {
                     let url = Flask.url_for('debts.api_get_debts', {'expense_id': expense_id})
                     async_json_request(url, 'GET', null, (data) => {
+                        console.log(data)
                         if(!data.success) {
                             add_alert(data.error)
                             return
@@ -103,7 +114,6 @@
                 function display_expense_description() {
                     let url = Flask.url_for('expenses.api_get_expense_by_id', {'expense_id': expense_id})
                      async_json_request(url, 'GET', null, (data) => {
-                        console.log(data)
                         if(!data.success) {
                             add_alert(data.error)
                             return
@@ -120,6 +130,63 @@
                     })
                 }
                 
+                {# for(let pay_butt of pay_buttons) {
+                    pay_butt.onclick = (e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+
+                        let debt_id = pay_butt.id
+
+                        let url = Flask.url_for('debts.api_update_amount_paid')
+
+                        async_json_request(url, 'POST', JSON.stringify(
+                            {
+                                "debt_id": debt_id
+                                
+                        }
+                        ), (data) => {
+                            if(!data.success) {
+                                add_alert(data.error)
+                                return
+                            }
+
+                            if(!data.result) {
+                                add_alert("Invalid response from server")
+                                return
+                            }
+
+                            document.getElementById("group-access-token").innerHTML=data.result["access_token"]
+                        })
+                    }
+                } #}
+
+                {# pay_form.onsubmit = (e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+
+                    let requestData = form_to_obj(pay_form)
+                    requestData['debt_id'] = pay_form.dataset.id
+
+                    let url = Flask.url_for('debts.api_update_amount_paid')
+
+                    async_json_request(url, 'POST', JSON.stringify(requestData), (data) => {
+                        console.log(data)
+
+                        if(!data.success) {
+                            add_alert(data.error)
+                            return
+                        }
+
+                        if(!data.result) {
+                            add_alert("Invalid response from server")
+                            return
+                        }
+                        
+                        add_alert("You have successfully joined into the group!")
+                        get_group_list_and_update_ui()
+                    })
+                } #}
+
                 display_expense_description()
                 get_participants_list_and_update_ui()
             }

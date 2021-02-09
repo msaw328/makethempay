@@ -81,6 +81,11 @@ p.header {
     margin: 0; 
 }
 
-@media (max-width: 480px) {
-    
+ul#participant_list div p {
+    font-size:15px;
+    color: white !important;
+}
+
+ul#participant_list li {
+    background-color: rgb(25, 135, 84);
 }

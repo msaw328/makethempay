@@ -272,6 +272,34 @@ def api_update_token():
         'result': db_result
     })
 
+
+# Get all members in group
+@router.route('/api/group/member/<int:group_id>', methods=['GET'])
+@login.required_api()
+def api_get_members(group_id):
+    try:
+        db_result = member.get_all_members(group_id)
+        if db_result is None:
+            rollback_transaction()
+            return jsonify({
+                'success': False,
+                'error': 'Group does not exist'
+            })
+    except psycopg2.Error as e:
+        rollback_transaction()
+        return jsonify({
+            'success': False,
+            'error': 'Database error'
+        })
+    else:
+        commit_transaction()
+
+    return jsonify({
+        'success': True,
+        'result': db_result
+    })
+
+
 # Generate random string
 def gen_str():
     token_length = 31

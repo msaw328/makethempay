@@ -53,7 +53,7 @@ def update_amount_paid_by_id(debt_id, amount_paid):
 
 # Gets debt with given expense_id
 def get_by_expense_id(expense_id):
-    query = """SELECT d.debtor_id, money_to_int(d.amount_paid) as amount_paid, money_to_int(d.amount_owed) as amount_owed, m.user_display_name, m.status
+    query = """SELECT d.id, d.debtor_id, money_to_int(d.amount_paid) as amount_paid, money_to_int(d.amount_owed) as amount_owed, m.user_display_name, m.status
                FROM debts d
                JOIN memberships m ON d.debtor_id = m.id
                WHERE expense_id = %(expense_id)s;
