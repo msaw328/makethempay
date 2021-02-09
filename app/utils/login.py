@@ -1,11 +1,11 @@
-from flask import current_app, session, redirect, flash, url_for
+from flask import current_app, session, redirect, flash, url_for, jsonify
 from functools import wraps
 
 # what it means to be logged in?
 def is_logged_in():
     return 'is_logged_in' in session and session['is_logged_in'] == True
 
-# decorater you can put on endpoint
+# decorater you can put on UI endpoint
 # can specify route to go to if failed check
 def required(goto, message='Please log in'):
     def _decorator(f):
@@ -17,6 +17,21 @@ def required(goto, message='Please log in'):
 
             return f(*args, **kwargs)
 
+        return _wrapped
+    return _decorator
+
+# decorator for API endpoints
+def required_api(message='Unauthorized: please log in to access'):
+    def _decorator(f):
+        @wraps(f)
+        def _wrapped(*args, **kwargs):
+            if not is_logged_in():
+                return jsonify({
+                    'success': False,
+                    'error': message
+                })
+            
+            return f(*args, **kwargs)
         return _wrapped
     return _decorator
 

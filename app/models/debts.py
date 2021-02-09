@@ -5,13 +5,13 @@ import psycopg2
 # id -> int
 # expense_id -> int
 # debtor_id -> int
-# amount_paid -> float
-# amount_owed -> float
+# amount_paid -> money (decimal)
+# amount_owed -> money (decimal)
 
 # Creates new debt
 def create(expense_id, debtor_id, amount_owed):
     query = """INSERT INTO debts (expense_id, debtor_id, amount_paid, amount_owed)
-               VALUES (%(expense_id)s, %(debtor_id)s, 0, %(amount_owed)s)
+               VALUES (%(expense_id)s, %(debtor_id)s, 0.00::numeric::money, int_to_money(%(amount_owed)s))
                RETURNING *;
             """
 
@@ -32,7 +32,7 @@ def create(expense_id, debtor_id, amount_owed):
 # Changes amount_paid in debts
 def update_amount_paid_by_id(debt_id, amount_paid):
     query = """UPDATE debts
-               SET amount_paid = %(amount_paid)s
+               SET amount_paid = int_to_money(%(amount_paid)s)
                WHERE id = %(debt_id)s
                RETURNING *;
                """
@@ -53,7 +53,7 @@ def update_amount_paid_by_id(debt_id, amount_paid):
 
 # Gets debt with given expense_id
 def get_by_expense_id(expense_id):
-    query = """SELECT d.debtor_id, d.amount_paid, d.amount_owed, m.user_display_name, m.status
+    query = """SELECT d.debtor_id, money_to_int(d.amount_paid) as amount_paid, money_to_int(d.amount_owed) as amount_owed, m.user_display_name, m.status
                FROM debts d
                JOIN memberships m ON d.debtor_id = m.id
                WHERE expense_id = %(expense_id)s;

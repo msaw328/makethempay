@@ -1,7 +1,7 @@
 # app module - create the base Flask app and mount routes
 
 import os
-from flask import Flask
+from flask import Flask, redirect, url_for
 from flask_jsglue import JSGlue
 
 def create_app():
@@ -27,7 +27,7 @@ def create_app():
     db.init_app(app)
 
     # expand context
-    from .utils.login import context_processor as login_context_processor
+    from .utils.login import context_processor as login_context_processor, is_logged_in
     app.context_processor(login_context_processor)
 
     # routes
@@ -39,6 +39,13 @@ def create_app():
     app.register_blueprint(membership.router, url_prefix='/member')
     app.register_blueprint(expenses.router, url_prefix='/expenses')
     app.register_blueprint(debts.router, url_prefix='/debts')
+
+    @app.route("/", methods=["GET"])
+    def default():
+        if not is_logged_in():
+            return redirect(url_for('auth.ui_login'), code=302)
+        else:
+            return redirect(url_for('member.ui_home'), code=302)
 
     if 'ENV' in app.config and app.config['ENV'] == 'development':
         print('ENDPOINTS:')

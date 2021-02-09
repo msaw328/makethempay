@@ -20,12 +20,13 @@ def ui_debt():
 
 # API routes, accept and return JSON
 @router.route('/api/update', methods=['POST'])
+@login.required_api()
 def api_update_amount_paid():
     user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
 
     req_check = is_json_request_valid(request, {
         'debt_id': int,
-        'amount_paid': float
+        'amount_paid': int
     })
 
     if not req_check:
@@ -77,6 +78,7 @@ def api_update_amount_paid():
 
 
 @router.route('/api/inexpense/<int:expense_id>', methods=['GET'])
+@login.required_api()
 def api_get_debts(expense_id):
     user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
 

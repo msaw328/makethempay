@@ -8,11 +8,11 @@
 -- These commands were put in this file only as a convenience.
 -- 
 -- object: makethempay | type: DATABASE --
-DROP DATABASE IF EXISTS makethempay;
+-- DROP DATABASE IF EXISTS makethempay;
 CREATE DATABASE makethempay;
 -- ddl-end --
 
-\c makethempay;
+\c makethempay
 
 SET check_function_bodies = false;
 -- ddl-end --
@@ -156,6 +156,79 @@ CREATE TRIGGER t_debtor_id_checks
 	ON public.debts
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.tf_debtor_id_check('');
+-- ddl-end --
+
+-- object: public.money_to_int | type: FUNCTION --
+DROP FUNCTION IF EXISTS public.money_to_int(money) CASCADE;
+CREATE FUNCTION public.money_to_int (value money)
+	RETURNS integer
+	LANGUAGE plpgsql
+	VOLATILE 
+	CALLED ON NULL INPUT
+	SECURITY INVOKER
+	COST 1
+	AS $$
+begin
+	return (value * 100)::numeric::integer;
+end;
+
+$$;
+-- ddl-end --
+ALTER FUNCTION public.money_to_int(money) OWNER TO postgres;
+-- ddl-end --
+
+-- object: public.int_to_money | type: FUNCTION --
+DROP FUNCTION IF EXISTS public.int_to_money(integer) CASCADE;
+CREATE FUNCTION public.int_to_money (value integer)
+	RETURNS money
+	LANGUAGE plpgsql
+	VOLATILE 
+	CALLED ON NULL INPUT
+	SECURITY INVOKER
+	COST 1
+	AS $$
+begin
+	return (value::numeric::money) / 100;
+end;
+
+$$;
+-- ddl-end --
+ALTER FUNCTION public.int_to_money(integer) OWNER TO postgres;
+-- ddl-end --
+
+-- object: public.tf_expense_has_debts | type: FUNCTION --
+DROP FUNCTION IF EXISTS public.tf_expense_has_debts() CASCADE;
+CREATE FUNCTION public.tf_expense_has_debts ()
+	RETURNS trigger
+	LANGUAGE plpgsql
+	VOLATILE 
+	CALLED ON NULL INPUT
+	SECURITY INVOKER
+	COST 1
+	AS $$
+declare
+	debtor_count integer := (select count(*) from debts where debts.expense_id = NEW.id); 
+begin
+	if debtor_count > 0 then
+		return null;
+	end if;
+
+	raise exception '0 debtors';
+	return null;
+end
+$$;
+-- ddl-end --
+ALTER FUNCTION public.tf_expense_has_debts() OWNER TO postgres;
+-- ddl-end --
+
+-- object: t_expense_has_debts | type: TRIGGER --
+-- t_expense_has_debts ON public.expenses CASCADE;
+CREATE CONSTRAINT TRIGGER t_expense_has_debts
+	AFTER INSERT OR UPDATE
+	ON public.expenses
+	DEFERRABLE INITIALLY DEFERRED
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.tf_expense_has_debts();
 -- ddl-end --
 
 -- object: user_id_in_users | type: CONSTRAINT --

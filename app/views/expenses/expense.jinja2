@@ -10,6 +10,7 @@
         <script type="module">
             import { form_to_obj, async_json_request } from "/static/js/form_utils.js"
             import { add_alert } from "/static/js/alerts.js"
+            import { money_to_int, int_to_money } from "/static/js/money.js"
 
                 function render_debtor_obj(obj) {
                     let display_name = obj["user_display_name"]
@@ -29,19 +30,19 @@
                     let div3 = document.createElement("div")
                     div3.className = "col-3"
                     let p3 = document.createElement("p")
-                    p3.innerHTML = amount_owed
+                    p3.innerHTML = int_to_money(amount_owed)
                     div3.appendChild(p3)
                     let div4 = document.createElement("div")
                     div4.className = "col-3"
                     let p4 = document.createElement("p")
-                    p4.innerHTML = amount
+                    p4.innerHTML = int_to_money(amount)
                     div4.appendChild(p4)
                     let div5 = document.createElement("div")
                     div5.className = "col-3"
                     let input1 = document.createElement("input")
                     input1.name = "amount_paid"
                     input1.type = "number"
-                    input1.placeholder = amount
+                    input1.placeholder = int_to_money(amount)
                     let div6 = document.createElement("div")
                     div6.className = "col-1"
                     let butt1 = document.createElement("button")

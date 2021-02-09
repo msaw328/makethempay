@@ -14,20 +14,23 @@ from ..models import commit_transaction, rollback_transaction
 router = Blueprint('member', __name__, template_folder='../views')
 
 @router.route('/home', methods=['GET'])
-# @login.required(goto='auth.ui_login')
+@login.required(goto='auth.ui_login')
 def ui_home():
     return render_template('/membership/home.jinja2')
 
 @router.route('/group/<int:group_id>', methods=['GET'])
+@login.required(goto='auth.ui_login')
 def ui_show_group(group_id):
     return
 
 @router.route('/group/new', methods=['GET'])
+@login.required(goto='auth.ui_login')
 def ui_new_group():
     return render_template('/membership/new_group.jinja2')
 
 # Get user's groups
 @router.route('/api/me/groups', methods=['GET'])
+@login.required_api()
 def api_member():    
     user_id = session['user_data']['id']
     try:
@@ -54,6 +57,7 @@ def api_member():
 
 # Get groups data from group_id
 @router.route('/api/group/<int:group_id>', methods=['GET'])
+@login.required_api()
 def api_get_group_by_id(group_id):
     user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
 
@@ -88,6 +92,7 @@ def api_get_group_by_id(group_id):
 
 # Add user into existing group
 @router.route('/api/join', methods=['POST'])
+@login.required_api()
 def api_add_member():
     req_check = is_json_request_valid(request, {
         'access_token': str,
@@ -128,9 +133,9 @@ def api_add_member():
             })
 
         # Check if user is in the group
-        is_user_in_group = member.is_user_in_group(user_id, db_group['id'])
+        is_user_in_group = member.get_user_in_group(user_id, db_group['id'])
 
-        if is_user_in_group:
+        if is_user_in_group is not None:
             rollback_transaction()
             return jsonify({
                 'success': False,
@@ -165,6 +170,7 @@ def api_add_member():
 
 # Create new group and add creator into it
 @router.route('/api/create', methods=['POST'])
+@login.required_api()
 def api_create_add_member():
     req_check = is_json_request_valid(request, {
         'user_display_name': str,
@@ -183,7 +189,7 @@ def api_create_add_member():
         status = None
 
     if 'description' in request.json and isinstance(request.json['description'], str):
-        description = request.json['status']
+        description = request.json['description']
     else:
         description = None
 
@@ -226,6 +232,7 @@ def api_create_add_member():
 
 # Update token function
 @router.route('/api/updatetoken', methods=['POST'])
+@login.required_api()
 def api_update_token():
     req_check = is_json_request_valid(request, {
         'access_token': str

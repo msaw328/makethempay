@@ -16,10 +16,14 @@ router = Blueprint('auth', __name__, template_folder='../views')
 # UI routes, view-based
 @router.route('/register', methods=['GET'])
 def ui_register():
+    if login.is_logged_in():
+        return redirect(url_for('member.ui_home'), code=320)
     return render_template('/auth/register.jinja2')
 
 @router.route('/login', methods=['GET'])
 def ui_login():
+    if login.is_logged_in():
+        return redirect(url_for('member.ui_home'), code=320)
     return render_template('/auth/login.jinja2')
 
 # API routes, accept and return JSON
@@ -141,6 +145,7 @@ def api_login():
     })
 
 @router.route('/api/logout', methods=['POST'])
+@login.required_api()
 def api_logout():
     login.do_logout()
     flash('Succesfully logged out')

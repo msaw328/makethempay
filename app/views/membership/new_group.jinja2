@@ -23,7 +23,7 @@
 
                     async_json_request(url, 'POST', JSON.stringify(requestData), (data) => {
                         if(data.success) {
-                             window.location = Flask.url_for('auth.ui_secret')
+                             window.location = Flask.url_for('member.ui_home')
                         } else {
                             add_alert(data.error)
                         }

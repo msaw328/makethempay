@@ -35,6 +35,7 @@ def ui_group_dashboard(group_id):
 
 # API routes, accept and return JSON
 @router.route('/api/ingroup/<int:group_id>/create', methods=['POST'])
+@login.required_api()
 def api_create_expense(group_id):
     user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
 
@@ -50,6 +51,7 @@ def api_create_expense(group_id):
         creditor_id = user_membership['id']
         members = membership.get_all_members(group_id)
     except psycopg2.Error as e:
+        print(e)
         rollback_transaction()
         return jsonify({
             'success': False,
@@ -82,7 +84,7 @@ def api_create_expense(group_id):
     req_check = is_json_request_valid(request, {
         # EXPENSES:
         'name': str,
-        'all_amount_owed': str
+        'all_amount_owed': int
     })
 
     if not req_check:
@@ -116,6 +118,8 @@ def api_create_expense(group_id):
     else:
         description = None
 
+    part_amount = all_amount_owed // len(members)
+
     try:
         expense_data = expensesmodel.create(creditor_id, name, description)
         expense_id = expense_data['id']
@@ -123,7 +127,7 @@ def api_create_expense(group_id):
             debts.create(
                 expense_id,
                 member['id'],
-                all_amount_owed/len(members)
+                part_amount
                 )
     except psycopg2.Error as e:
         rollback_transaction()
@@ -141,6 +145,7 @@ def api_create_expense(group_id):
     })
 
 @router.route('/api/ingroup/<int:group_id>', methods=['GET'])
+@login.required_api()
 def api_get_expenses(group_id):
     user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
 
@@ -181,6 +186,7 @@ def api_get_expenses(group_id):
 
 
 @router.route('/api/<int:expense_id>', methods=['GET'])
+@login.required_api()
 def api_get_expense_by_id(expense_id):
     user_id = session['user_data']['id']    # COULD NOT WORK BECAUSE OF NOT BEING LOGGED IN
 

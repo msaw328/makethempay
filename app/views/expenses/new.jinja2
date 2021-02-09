@@ -10,6 +10,7 @@
         <script type="module">
             import { form_to_obj, async_json_request } from "/static/js/form_utils.js"
             import { add_alert } from "/static/js/alerts.js"
+            import { money_to_int, int_to_money } from "/static/js/money.js"
 
             window.onload = () => {
                 let new_expense_form = document.getElementById('new_expense_form')
@@ -20,8 +21,9 @@
                     e.stopPropagation()
 
                     let requestData = form_to_obj(new_expense_form)
-                    let url = Flask.url_for('expenses.api_create_expense', {"group_id": group_id})    
-                    console.log(requestData)     
+                    let url = Flask.url_for('expenses.api_create_expense', {"group_id": group_id})
+                    requestData['all_amount_owed'] = money_to_int(requestData['all_amount_owed'])
+                    console.log(requestData)
 
                     async_json_request(url, 'POST', JSON.stringify(requestData), (data) => {
                         if(data.success) {

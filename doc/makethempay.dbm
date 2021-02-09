@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.3-beta" use-changelog="false" last-position="0,0" last-zoom="1.15" max-obj-count="6"
+<dbmodel pgmodeler-ver="0.9.3-beta1" use-changelog="false" last-position="0,0" last-zoom="0.8" max-obj-count="6"
 	 default-schema="public" default-owner="postgres">
 <database name="makethempay" is-template="false" allow-conns="true">
 </database>
@@ -160,7 +160,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="public"/>
 	<role name="postgres"/>
 	<comment><![CDATA[checks if debtor is in the same group as creditor of the expense, or if the debtor and creditor is the same person]]></comment>
-	<language name="plpgsql" sql-disabled="true"/>
+	<language name="plpgsql"/>
 	<return-type>
 	<type name="trigger" length="0"/>
 	</return-type>
@@ -189,6 +189,85 @@ end;
 	 ins-event="true" del-event="false" upd-event="true" trunc-event="false"
 	 table="public.debts">
 		<function signature="public.tf_debtor_id_check()"/>
+</trigger>
+
+<function name="money_to_int"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		execution-cost="1"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="integer" length="0"/>
+	</return-type>
+	<parameter name="value">
+		<type name="money" length="0"/>
+	</parameter>
+	<definition><![CDATA[begin
+	return (value * 100)::numeric::integer;
+end;
+]]></definition>
+</function>
+
+<function name="int_to_money"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		execution-cost="1"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="money" length="0"/>
+	</return-type>
+	<parameter name="value">
+		<type name="integer" length="0"/>
+	</parameter>
+	<definition><![CDATA[begin
+	return (value::numeric::money) / 100;
+end;
+]]></definition>
+</function>
+
+<function name="tf_expense_has_debts"
+		window-func="false"
+		returns-setof="false"
+		behavior-type="CALLED ON NULL INPUT"
+		function-type="VOLATILE"
+		security-type="SECURITY INVOKER"
+		execution-cost="1"
+		row-amount="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<language name="plpgsql"/>
+	<return-type>
+	<type name="trigger" length="0"/>
+	</return-type>
+	<definition><![CDATA[declare
+	debtor_count integer := (select count(*) from debts where debts.expense_id = NEW.id); 
+begin
+	if debtor_count > 0 then
+		return null;
+	end if;
+
+	raise exception '0 debtors';
+	return null;
+end]]></definition>
+</function>
+
+<trigger name="t_expense_has_debts" firing-type="AFTER" per-line="true" constraint="true"
+	 ins-event="true" del-event="false" upd-event="true" trunc-event="false"
+		 deferrable="true" defer-type="INITIALLY DEFERRED"
+	 table="public.expenses">
+		<function signature="public.tf_expense_has_debts()"/>
 </trigger>
 
 <constraint name="user_id_in_users" type="fk-constr" comparison-type="MATCH FULL"
